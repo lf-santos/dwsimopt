@@ -1,0 +1,10 @@
+Aconselho usar venv para criar virtual environments.
+Assim, podemos trabalhar no mesmo projeto sem problema
+de versões dos pacotes e do próprio Python. Em caso de 
+dúvidas:
+https://www.youtube.com/watch?v=APOPm01BVrk&ab_channel=CoreySchafer
+Os pacotes necessário para rodar dwsim_automatiion.py
+são os relacionados em requirements.txt. Conforme for
+desenvolvendo mais o código, lembre-se de atualizar
+o requirements.txt:
+pip freeze > requirements.txt
