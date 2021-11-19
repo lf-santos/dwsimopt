@@ -83,7 +83,9 @@ print(String.Format("Heater Heat Load: {0} kW", h1.DeltaQ))
 # save file
 
 #path2save = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "/DWSIM_automation2")
-path2save = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/DWSIM_automation_python"
+from os import getcwd
+path2save = getcwd() + "/DWSIM_automation_python"
+# path2save = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + "/DWSIM_automation_python"
 from os import makedirs
 makedirs(path2save, exist_ok=True)
 
