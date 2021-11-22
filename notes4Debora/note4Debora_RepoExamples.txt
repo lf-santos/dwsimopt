@@ -1,0 +1,2 @@
+https://github.com/edgarsmdn/Aspen_HYSYS_Python
+https://github.com/perrywzm/hysysopt
