@@ -2,7 +2,7 @@ from pyDWSIMconnect import pyDWSIMconnect
 from Simulation import Simulation
 import numpy as np
 import time
-from fobj import fobj
+from fobj import *
 
 # def main():
 
@@ -30,6 +30,7 @@ for i in mr1_flow:
     print("Running simulation with m_MR = ", i, " kg/s, please wait...")
     sumW, mita = fobj(sim_smr,i)
     errors = sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+    errors = sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
     # time.sleep(1)
     t0 = time.time()
     while (not sim_smr.flowsheet.Solved and time.time()-t0<1):
@@ -42,7 +43,7 @@ for i in mr1_flow:
     print("For m_MR = ",i," results:\nsum(W): ", sumW, " kW, MITA: ",mita," °C\n")
 
 
-
+fobj3n(sim_smr)
 
 
 # if __name__ == "__main__":
