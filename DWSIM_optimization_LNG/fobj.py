@@ -1,3 +1,5 @@
+import time
+
 def fobj(sim_smr,x=0.00118444444444444):
     mr1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1")
     mr1.SetMassFlow(x)
@@ -32,6 +34,9 @@ def fobj3n(sim_smr, x=[0.00118444444444444, 2.3e5, 48e5]):
     comp4.OutletPressure = x[2]
 
     sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+    time.sleep(0.5)
+    sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+    time.sleep(0.5)
     sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
 
     sumW = comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ
@@ -43,3 +48,7 @@ def fobj3n(sim_smr, x=[0.00118444444444444, 2.3e5, 48e5]):
     )
 
     return sumW, mita
+
+def fpen(x,sim,fobj):
+    f, g = fobj(sim,x)
+    return f + 1000*max(0,3-g)
