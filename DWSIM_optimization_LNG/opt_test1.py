@@ -1,5 +1,5 @@
-from pyDWSIMconnect import pyDWSIMconnect
-from Simulation import Simulation
+from pyDWSIMconnect import PyDWSIMconnect
+from simulation import Simulation
 import numpy as np
 import time
 from fobj import *
@@ -8,7 +8,7 @@ from scipy import optimize
 
 sim_smr = Simulation(path2sim="C:\\Users\\lfsfr\\Desktop\\pyDWSIMopt\\sim\\SMR_1exp.dwxmz")
 
-pyDWSIMconnect(sim_smr)
+PyDWSIMconnect(sim_smr)
 
 x0=[0.00118444444444444, 2.3e5, 48e5]
 args=(sim_smr,fobj3n)
