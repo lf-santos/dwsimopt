@@ -4,6 +4,10 @@ class Simulation():
     def __init__(self, path2sim="C:\\Users\\lfsfr\\Desktop\\pyDWSIMopt\\sim\\C3MR.dwxmz", path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
         self.path = path2sim
         self.path2dwsim = path2dwsim
+        self.x = None
+        self.f = None
+        self.g = None
+        self.fobj = None
     
     def Add_refs(self):
         import pythoncom

@@ -65,9 +65,9 @@ def fobj8n(sim_smr, x):
     comp4 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COMP-4") 
     vlv1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("VALV-01")
     cool8 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COOL-08")
-    if True == True:
+    if np.linalg.norm(sim_smr.x-x)>1e-10:
     # if ( abs(mr1.GetMassFlow() - x[0])/abs(x[0]) + abs(vlv1.OutletPressure - x[1])/abs(x[1]) + abs(comp4.POut - x[2])/abs(x[2]) ) > 1e-12:
-        # print("calculated with ")
+        print("calculated with ")
         # print( abs(mr1.GetMassFlow() - x[0])/abs(x[0]))
         # print(abs(vlv1.OutletPressure - x[1])/abs(x[1]))
         # print(abs(comp4.POut - x[2])/abs(x[2]) )
@@ -85,18 +85,24 @@ def fobj8n(sim_smr, x):
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
         time.sleep(0.05)
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-    # else:
-        # print("skipped with")
+        sumW = comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ
+        mita = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-07").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(), 
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-1").GetTemperature()   - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-12").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-3").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature()
+        )
+    else:
+        print("skipped with")
+        sumW = sim_smr.f
+        mita = sim_smr.g
         # print( abs(mr1.GetMassFlow() - x[0])/abs(x[0]))
         # print(abs(vlv1.OutletPressure - x[1])/abs(x[1]))
         # print(abs(comp4.POut - x[2])/abs(x[2]) )
-    sumW = comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ
-    mita = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-07").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(), 
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-1").GetTemperature()   - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-12").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-3").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature()
-    )
+    
     # sim_smr.interface.SaveFlowsheet(sim_smr.flowsheet,sim_smr.path,True)
+    sim_smr.x = x
+    sim_smr.f = sumW
+    sim_smr.g = mita
     return sumW, mita
 
 def fobj8n_2exp(sim_smr, x):
@@ -110,7 +116,9 @@ def fobj8n_2exp(sim_smr, x):
     vlv1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("VALV-01")
     cool8 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COOL-08")
     lng = sim_smr.flowsheet.GetFlowsheetSimulationObject("LNG-1")
-    if True == True:
+    if sim_smr.x is None:
+        sim_smr.x = np.zeros(len(x))
+    if np.linalg.norm(sim_smr.x - np.asarray(x))>1e-10:
     # m_old = np.ones(mr1.Phases[0].Compounds.Values.Count)
     # ite=0
     # for m_i in mr1.Phases[0].Compounds.Values:
@@ -124,6 +132,10 @@ def fobj8n_2exp(sim_smr, x):
         # print(abs(vlv1.OutletPressure - x[1])/abs(x[1]))
         # print(abs(comp4.POut - x[2])/abs(x[2]) )
         # mr1.SetMassFlow(x[0])
+        sep1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-02")
+        sep2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-03")
+        # sep1.Calculated = False
+        # sep2.Calculated = False
         mr1.SetOverallCompoundMassFlow(0,x[1])
         mr1.SetOverallCompoundMassFlow(1,x[2])
         mr1.SetOverallCompoundMassFlow(2,x[3])
@@ -133,6 +145,20 @@ def fobj8n_2exp(sim_smr, x):
         comp4.POut = x[6]
         cool8.OutletTemperature = x[7]
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+        # if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction < 1e-5:
+        #     pump1.Calculated = False
+        #     pump1.Uncalcu
+        # else:
+        #     pump1.Calculated = True
+        # sep1.Calculated = True
+        # sep1.Calculate()
+        # sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+        # if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction < 1e-5:
+        #     pump2.Calculated = False
+        # else:
+        #     pump2.Calculated = True
+        # sep2.Calculated = True
+        # sep2.Calculate()
         #force to calculate spec2 spec3 cool6 e cool5
         sim_smr.flowsheet.GetFlowsheetSimulationObject("SPEC-02").Solve()
         sim_smr.flowsheet.GetFlowsheetSimulationObject("SPEC-03").Solve()
@@ -144,26 +170,37 @@ def fobj8n_2exp(sim_smr, x):
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
         time.sleep(0.05)
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-    # else:
+        sumW = (comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ)
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction > 1e-5:
+            sumW += pump1.DeltaQ 
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction > 1e-5:    
+            sumW += pump2.DeltaQ
+        sumW = sumW/lng.GetMassFlow()/3600
+        mita1 = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-08").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-09").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(), 
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-1_2").GetTemperature()   - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-10").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-11").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-2").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature()
+        )
+        mita2 = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-10").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-16").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-2").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-16").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-12").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature(),
+            sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-3").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature()
+        )
+    else:
+        sumW = sim_smr.f
+        mita1 = sim_smr.g
+        mita2 = sim_smr.g
         # print("skipped with")
         # print( abs(mr1.GetMassFlow() - x[0])/abs(x[0]))
         # print(abs(vlv1.OutletPressure - x[1])/abs(x[1]))
         # print(abs(comp4.POut - x[2])/abs(x[2]) )
-    sumW = (comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ + pump1.DeltaQ + pump2.DeltaQ)/lng.GetMassFlow()/3600
-    mita1 = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-08").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-09").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(), 
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-1_2").GetTemperature()   - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-17").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-10").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-11").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-2").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-15").GetTemperature()
-    )
-    mita2 = min(sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-10").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-16").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-2").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-16").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-12").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature(),
-        sim_smr.flowsheet.GetFlowsheetSimulationObject("NG-3").GetTemperature() - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-13").GetTemperature()
-    )
     # if np.linalg.norm( x-x_old ) > 1e-5:
     #     sim_smr.interface.SaveFlowsheet(sim_smr.flowsheet,sim_smr.path,True)
+    sim_smr.x = x
+    sim_smr.f = sumW
+    sim_smr.g = min(mita1, mita2)
     return sumW, min(mita1, mita2)
 
 def fpen(x,sim,fobj):
