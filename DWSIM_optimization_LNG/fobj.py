@@ -134,8 +134,9 @@ def fobj8n_2exp(sim_smr, x):
         # mr1.SetMassFlow(x[0])
         sep1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-02")
         sep2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-03")
-        # sep1.Calculated = False
-        # sep2.Calculated = False
+        sep1.GraphicObject.Activate = False
+        sep2.GraphicObject.Activate = False
+
         mr1.SetOverallCompoundMassFlow(0,x[1])
         mr1.SetOverallCompoundMassFlow(1,x[2])
         mr1.SetOverallCompoundMassFlow(2,x[3])
@@ -144,21 +145,43 @@ def fobj8n_2exp(sim_smr, x):
         vlv1.OutletPressure = x[5]
         comp4.POut = x[6]
         cool8.OutletTemperature = x[7]
+
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-        # if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction < 1e-5:
-        #     pump1.Calculated = False
-        #     pump1.Uncalcu
-        # else:
-        #     pump1.Calculated = True
-        # sep1.Calculated = True
-        # sep1.Calculate()
-        # sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-        # if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction < 1e-5:
-        #     pump2.Calculated = False
-        # else:
-        #     pump2.Calculated = True
-        # sep2.Calculated = True
-        # sep2.Calculate()
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction < 1e-5:
+            pump1.GraphicObject.Active = False
+            print(sim_smr.flowsheet.GetFlowsheetSimulationObject("PUMP-01").GraphicObject.Active)
+            sim_smr.flowsheet.DisconnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-29").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
+        else:
+            pump1.GraphicObject.Active = True
+            sim_smr.flowsheet.DisconnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-29").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject) #avoid bug
+            sim_smr.flowsheet.ConnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-29").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject,
+                -1,-1)
+        sep1.GraphicObject.Active = True
+        sep1.Calculate()
+        sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction < 1e-5:
+            pump2.GraphicObject.Active = False
+            sim_smr.flowsheet.DisconnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
+        else:
+            pump1.GraphicObject.Active = True
+            sim_smr.flowsheet.DisconnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
+            sim_smr.flowsheet.ConnectObjects(
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
+                sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject,
+                -1,-1)
+        sep2.GraphicObject.Active = True
+        sep2.Calculate()
+        sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
         #force to calculate spec2 spec3 cool6 e cool5
         sim_smr.flowsheet.GetFlowsheetSimulationObject("SPEC-02").Solve()
         sim_smr.flowsheet.GetFlowsheetSimulationObject("SPEC-03").Solve()
