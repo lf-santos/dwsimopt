@@ -171,7 +171,7 @@ def fobj8n_2exp(sim_smr, x):
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
         else:
-            pump1.GraphicObject.Active = True
+            pump2.GraphicObject.Active = True
             sim_smr.flowsheet.DisconnectObjects(
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
