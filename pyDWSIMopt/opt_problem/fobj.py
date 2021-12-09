@@ -1,7 +1,7 @@
 import time
 import numpy as np
 
-def fobj_smr(sim_smr, x):
+def fobj_smr(sim_smr, x, dtmin=3):
     mr1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1")
     comp1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COMP-1") 
     comp2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COMP-2") 
@@ -30,7 +30,7 @@ def fobj_smr(sim_smr, x):
         cool8.OutletTemperature = x[7]
 
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction < 1e-5:
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction == 0:
             pump1.GraphicObject.Active = False
             # print(sim_smr.flowsheet.GetFlowsheetSimulationObject("PUMP-01").GraphicObject.Active)
             sim_smr.flowsheet.DisconnectObjects(
@@ -47,7 +47,7 @@ def fobj_smr(sim_smr, x):
         sep1.GraphicObject.Active = True
         sep1.Calculate()
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction < 1e-5:
+        if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction == 0:
             pump2.GraphicObject.Active = False
             sim_smr.flowsheet.DisconnectObjects(
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-30").GraphicObject,
@@ -96,5 +96,5 @@ def fobj_smr(sim_smr, x):
         mita2 = sim_smr.g
     sim_smr.x = x
     sim_smr.f = sumW
-    sim_smr.g = min(mita1, mita2)
-    return sumW, min(mita1, mita2)
+    sim_smr.g = dtmin-min(mita1, mita2)
+    return sumW, dtmin-min(mita1, mita2)

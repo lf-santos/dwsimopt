@@ -1,7 +1,7 @@
 
 class Simulation():
 
-    def __init__(self, path2sim="C:\\Users\\lfsfr\\Desktop\\pyDWSIMopt\\sim\\C3MR.dwxmz", path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
+    def __init__(self, path2sim, path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
         self.path = path2sim
         self.path2dwsim = path2dwsim
         self.x = None
@@ -49,3 +49,4 @@ class Simulation():
             
             if flowsheet is not None:
                 print("Simulation was loaded successfully")
+

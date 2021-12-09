@@ -1,5 +1,6 @@
-from .simulation import Simulation
+from .simulation import Simulation, SimulationGeneric
 
 __all__ = [
     "Simulation",
+    "SimulationGeneric"
 ]
