@@ -1,8 +1,0 @@
-Débora, se você estiver usando python v3.9+
-é possível que a instalação do module pythonnet de 
-problema.
-Solução:
-entre em: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet
-baixe: pythonnet‑2.5.2‑cp39‑cp39‑win_amd64.whl
-e execute: pip install C:\Users\User\Downloads\pythonnet‑2.5.2‑cp39‑cp39‑win_amd64.whl
-acima, troque User pelo nome do seu usuário do windows.
