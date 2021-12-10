@@ -12,6 +12,8 @@ def fobj_smr(sim_smr, x, dtmin=3):
     vlv1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("VALV-01")
     cool8 = sim_smr.flowsheet.GetFlowsheetSimulationObject("COOL-08")
     lng = sim_smr.flowsheet.GetFlowsheetSimulationObject("LNG-1")
+    ps1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc")
+    ps2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc")
     if sim_smr.x is None:
         sim_smr.x = np.zeros(len(x))
     if np.linalg.norm(sim_smr.x - np.asarray(x))>1e-10:
@@ -19,6 +21,8 @@ def fobj_smr(sim_smr, x, dtmin=3):
         sep2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-03")
         sep1.GraphicObject.Activate = False
         sep2.GraphicObject.Activate = False
+        ps1.GraphicObject.Activate = False
+        ps2.GraphicObject.Activate = False
 
         mr1.SetOverallCompoundMassFlow(0,x[1])
         mr1.SetOverallCompoundMassFlow(1,x[2])
@@ -32,7 +36,6 @@ def fobj_smr(sim_smr, x, dtmin=3):
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
         if sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction == 0:
             pump1.GraphicObject.Active = False
-            # print(sim_smr.flowsheet.GetFlowsheetSimulationObject("PUMP-01").GraphicObject.Active)
             sim_smr.flowsheet.DisconnectObjects(
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-29").GraphicObject,
                 sim_smr.flowsheet.GetFlowsheetSimulationObject("MIX-02").GraphicObject)
@@ -64,6 +67,10 @@ def fobj_smr(sim_smr, x, dtmin=3):
         sep2.GraphicObject.Active = True
         sep2.Calculate()
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
+        ps1.GraphicObject.Activate = True
+        ps2.GraphicObject.Activate = True
+        ps1.Calculate()
+        ps2.Calculate()
         # print(comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ)
         # print(sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita'])
         # print(sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita'])
@@ -97,4 +104,4 @@ def fobj_smr(sim_smr, x, dtmin=3):
     sim_smr.x = x
     sim_smr.f = sumW
     sim_smr.g = dtmin-min(mita1, mita2)
-    return sumW, dtmin-min(mita1, mita2)
+    return sumW, (dtmin-min(mita1, mita2))

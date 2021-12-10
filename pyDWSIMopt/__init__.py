@@ -1,4 +1,3 @@
-#!/usr/bin/env python3.9
 from . import interface, opt_problem
 
 __version__ = "0.0.1"

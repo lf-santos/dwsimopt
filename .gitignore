@@ -2,3 +2,4 @@ venv
 .vscode
 sim
 note4me.txt
+examples/SMR_LNG/example_SMR_simulationGeneric.ipynb

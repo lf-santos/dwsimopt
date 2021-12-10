@@ -33,13 +33,10 @@ class Simulation():
         clr.AddReference(self.path2dwsim + "Microsoft.ServiceBus.dll")
         print("added refs")
 
-    def Connect(self):  
-        from DWSIM.Automation import Automation2
+    def Connect(self, interf):  
+        import sys
 
-        if hasattr(self, 'flowsheet') != True:
-            # create automation manager
-            interf = Automation2()
-
+        if ~hasattr(self, 'flowsheet'):
             # load simulation
             flowsheet = interf.LoadFlowsheet(self.path)
 
@@ -49,4 +46,15 @@ class Simulation():
             
             if flowsheet is not None:
                 print("Simulation was loaded successfully")
+
+class SimulationGeneric(Simulation):
+
+    def __init__(self, path2sim, dof, path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
+        super().__init__(path2sim=path2sim,path2dwsim=path2dwsim)
+        self.dof = dof
+        print(hasattr(self, 'flowsheet'))
+        if ~hasattr(self, 'flowsheet'):
+            self.Add_refs()
+            self.Connect()
+
 
