@@ -99,8 +99,8 @@ def fobj_smr(sim_smr, x, dtmin=3):
         mita2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita']
     else:
         sumW = sim_smr.f
-        mita1 = sim_smr.g
-        mita2 = sim_smr.g
+        mita1 = dtmin - sim_smr.g
+        mita2 = dtmin - sim_smr.g
     sim_smr.x = x
     sim_smr.f = sumW
     sim_smr.g = dtmin-min(mita1, mita2)
