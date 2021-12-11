@@ -1,3 +1,4 @@
+import numpy as np
 
 class Simulation():
 
@@ -52,9 +53,10 @@ class SimulationGeneric(Simulation):
     def __init__(self, path2sim, dof, path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
         super().__init__(path2sim=path2sim,path2dwsim=path2dwsim)
         self.dof = dof
-        print(hasattr(self, 'flowsheet'))
-        if ~hasattr(self, 'flowsheet'):
-            self.Add_refs()
-            self.Connect()
+        self.n_dof = self.dof.size
+
+    def add_dof(self, dof_new):
+        self.dof = np.append(self.dof, dof_new)
+        self.n_dof = self.dof.size
 
 

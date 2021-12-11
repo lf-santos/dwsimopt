@@ -19,10 +19,10 @@ def fobj_smr(sim_smr, x, dtmin=3):
     if np.linalg.norm(sim_smr.x - np.asarray(x))>1e-10:
         sep1 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-02")
         sep2 = sim_smr.flowsheet.GetFlowsheetSimulationObject("SEP-03")
-        sep1.GraphicObject.Activate = False
-        sep2.GraphicObject.Activate = False
-        ps1.GraphicObject.Activate = False
-        ps2.GraphicObject.Activate = False
+        sep1.GraphicObject.Active = False
+        sep2.GraphicObject.Active = False
+        ps1.GraphicObject.Active = False
+        ps2.GraphicObject.Active = False
 
         mr1.SetOverallCompoundMassFlow(0,x[1])
         mr1.SetOverallCompoundMassFlow(1,x[2])
@@ -67,8 +67,8 @@ def fobj_smr(sim_smr, x, dtmin=3):
         sep2.GraphicObject.Active = True
         sep2.Calculate()
         sim_smr.interface.CalculateFlowsheet2(sim_smr.flowsheet)
-        ps1.GraphicObject.Activate = True
-        ps2.GraphicObject.Activate = True
+        ps1.GraphicObject.Active = True
+        ps2.GraphicObject.Active = True
         ps1.Calculate()
         ps2.Calculate()
         # print(comp1.DeltaQ + comp2.DeltaQ + comp3.DeltaQ + comp4.DeltaQ)
@@ -105,3 +105,19 @@ def fobj_smr(sim_smr, x, dtmin=3):
     sim_smr.f = sumW
     sim_smr.g = dtmin-min(mita1, mita2)
     return sumW, (dtmin-min(mita1, mita2))
+
+def fobj_smr_generic(sim, x):
+    for i in range(sim.n_dof):
+        sim.dof[i](x[i])
+    source = sim.flowsheet.Scripts.Values.Where(lambda x: x.Title == 'fobj_calc').FirstOrDefault().ScriptText.replace('\r', '')
+    exec(source)
+    sumW = (sim.flowsheet.GetFlowsheetSimulationObject("COMP-1") .DeltaQ 
+            + sim.flowsheet.GetFlowsheetSimulationObject("COMP-2") .DeltaQ 
+            + sim.flowsheet.GetFlowsheetSimulationObject("COMP-3") .DeltaQ 
+            + sim.flowsheet.GetFlowsheetSimulationObject("COMP-4") .DeltaQ)
+    mita1 = sim.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita']
+    mita2 = sim.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita']
+    sim.x = x
+    sim.f = sumW
+    sim.g = 3-min(mita1, mita2)
+    return sumW, (3-min(mita1, mita2))
