@@ -59,4 +59,6 @@ class SimulationGeneric(Simulation):
         self.dof = np.append(self.dof, dof_new)
         self.n_dof = self.dof.size
 
+    def add_fobj(self, f):
+        self.fobj = f
 
