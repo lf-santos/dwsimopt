@@ -3,6 +3,7 @@ venv
 sim
 note4me.txt
 *_backup.dwxmz
+bkp
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,python,visualstudiocode
