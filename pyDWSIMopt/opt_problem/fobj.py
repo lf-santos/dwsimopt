@@ -114,13 +114,17 @@ def fobj_smr(sim_smr, x, dtmin=3):
     return sumW, (dtmin-min(mita1, mita2))
 
 def fobj_smr_generic(sim, x):
+    print(f"opt_functions calculation at x = {x}")
     for i in range(sim.n_dof):
         sim.dof[i](x[i])
-    # source = sim.flowsheet.Scripts.Values.Where(lambda x: x.Title == 'fobj_calc').FirstOrDefault().ScriptText.replace('\r', '')
-    # exec(source)
-    import time
-    while sim.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").GraphicObject.Calculated == False or sim.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").GraphicObject.Calculated == False:
-        time.sleep(0.1)
+    error = sim.interface.CalculateFlowsheet2(sim.flowsheet)
+    time.sleep(0.05)
+    error = sim.interface.CalculateFlowsheet2(sim.flowsheet)
+    time.sleep(0.05)
+    error = sim.interface.CalculateFlowsheet2(sim.flowsheet)
+    time.sleep(0.05)
+    if bool(error):
+        print(f"{error[0]} at x = {x}")
     sumW = (sim.flowsheet.GetFlowsheetSimulationObject("COMP-1") .DeltaQ 
             + sim.flowsheet.GetFlowsheetSimulationObject("COMP-2") .DeltaQ 
             + sim.flowsheet.GetFlowsheetSimulationObject("COMP-3") .DeltaQ 
@@ -129,8 +133,12 @@ def fobj_smr_generic(sim, x):
         sumW += sim.flowsheet.GetFlowsheetSimulationObject("PUMP-01") .DeltaQ 
     if sim.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction > 1e-5:    
         sumW += sim.flowsheet.GetFlowsheetSimulationObject("PUMP-02") .DeltaQ
+    if sim.flowsheet.GetFlowsheetSimulationObject("MSTR-07").Phases[1].Properties.massfraction == 0:    
+        sumW += 1e10
+    sumW = sumW/sim.flowsheet.GetFlowsheetSimulationObject("LNG-1").GetMassFlow()/3600
     mita1 = sim.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita']
     mita2 = sim.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita']
+    print(f"sumW = {sumW}, mita1 = {mita1}, mita2 = {mita2}")
     sim.x = x
     sim.f = sumW
     sim.g = 3-min(mita1, mita2)

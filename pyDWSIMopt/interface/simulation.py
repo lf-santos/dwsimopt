@@ -32,6 +32,9 @@ class Simulation():
         clr.AddReference(self.path2dwsim + "DWSIM.MathOps.dll")
         clr.AddReference(self.path2dwsim + "TcpComm.dll")
         clr.AddReference(self.path2dwsim + "Microsoft.ServiceBus.dll")
+        clr.AddReference(self.path2dwsim + "System.Buffers.dll")
+        clr.AddReference(self.path2dwsim + "SkiaSharp.dll")
+        
         print("added refs")
 
     def Connect(self, interf):  

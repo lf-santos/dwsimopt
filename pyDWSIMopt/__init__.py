@@ -6,4 +6,5 @@ __author__ = "Lucas F. Santos"
 __all__ = [
     "interface",
     "opt_proble",
+    "tests",
 ]
