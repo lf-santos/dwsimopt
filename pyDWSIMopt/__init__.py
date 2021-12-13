@@ -1,10 +1,10 @@
-from . import interface, opt_problem
+# from . import interface, opt_problem, tests
 
-__version__ = "0.0.1"
-__author__ = "Lucas F. Santos"
+# __version__ = "0.0.1"
+# __author__ = "Lucas F. Santos"
 
-__all__ = [
-    "interface",
-    "opt_proble",
-    "tests",
-]
+# __all__ = [
+#     "interface",
+#     "opt_problem",
+#     "tests",
+# ]

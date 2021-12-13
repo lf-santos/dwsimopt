@@ -1,14 +1,19 @@
 import numpy as np
 
-class Simulation():
+class SimulationOptimization():
 
-    def __init__(self, path2sim, path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
+    def __init__(self, path2sim, dof=np.array([]), path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
         self.path = path2sim
         self.path2dwsim = path2dwsim
         self.x = None
         self.f = None
         self.g = None
-        self.fobj = None
+        self.fobj = []
+        self.n_fobj = self.fobj.size
+        self.constraints = []
+        self.n_constraints = self.constraints.size
+        self.dof = dof
+        self.n_dof = self.dof.size
     
     def Add_refs(self):
         import pythoncom
@@ -51,17 +56,39 @@ class Simulation():
             if flowsheet is not None:
                 print("Simulation was loaded successfully")
 
-class SimulationGeneric(Simulation):
-
-    def __init__(self, path2sim, dof, path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):
-        super().__init__(path2sim=path2sim,path2dwsim=path2dwsim)
-        self.dof = dof
-        self.n_dof = self.dof.size
-
     def add_dof(self, dof_new):
         self.dof = np.append(self.dof, dof_new)
         self.n_dof = self.dof.size
 
     def add_fobj(self, f):
-        self.fobj = f
+        self.fobj = np.append(self.fobj, f)
+        self.n_fobj = self.fobj.size
 
+    def add_constraint(self, g):
+        self.constraints = np.append(self.constraints, g)
+        self.n_constraints = self.constraints.size
+
+    def converge_simulation(self, x):
+        print(f"opt_functions calculation at x = {x}")
+        for i in range(self.n_dof):
+            self.dof[i](x[i])
+        error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        time.sleep(0.05)
+        error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        time.sleep(0.05)
+        error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        time.sleep(0.05)
+        if bool(error):
+            print(f"{error[0]} at x = {x}")
+
+    def fpen_barrier(sim,x):
+        f, g = sim.fobj(x)
+        return f + 1000*max(0,g)
+
+    def fpen_quad(sim, x):
+        f, g = sim.fobj(x)
+        return f + 1000*max(0,g)**2
+
+    def fpen_exp(sim, x):
+        f, g = sim.fobj(x)
+        return f + 1000*exp(max(0,g))
