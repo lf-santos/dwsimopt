@@ -1,11 +1,11 @@
 """Main module that contains SimulationOptimization class definition
 
-.. module:: sim_opt
+.. module:: sim_opt.py
    :synopsis: DWSIM simulation optimization class
 
 .. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
-:Module: sim_opt
+:Module: sim_opt.py
 :Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
 """

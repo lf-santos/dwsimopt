@@ -1,11 +1,11 @@
 """Module that contains the tests for the DWSIM-Python interface
 
-.. module:: tests
+.. module:: test_interface.py
    :synopsis: Tests for the DWSIM-Python interface
 
 .. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
-:Module: test_interface
+:Module: test_interface.py
 :Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
 """
