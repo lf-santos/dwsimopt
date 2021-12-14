@@ -1,7 +1,14 @@
-# from IPython.terminal.embed import InteractiveShellEmbed
-# ipshell = InteractiveShellEmbed()
-# # ipshell.dummy_mode = True
-# ipshell.magic('%reset -sf')
+"""Module that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet
+
+.. module:: tests
+   :synopsis: Tests for the DWSIM flowsheet calculation via Python interface
+
+.. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
+
+:Module: tests_sim_opt
+:Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
+
+"""
 import sys
 import os
 import numpy as np
@@ -10,8 +17,15 @@ import unittest
 from pyDWSIMopt.sim_opt import SimulationOptimization
 
 class TestSimOpt(unittest.TestCase):
+    """Class that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet.
+
+    Args:
+        unittest (): Standard python module for unit testting code.
+    """
 
     def test_SimOpt_reproductibility(self):
+        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
+        """
         # Getting DWSIM path from system path
         for k,v in enumerate(os.environ['path'].split(';')):
             if v.find('\DWSIM')>-1:

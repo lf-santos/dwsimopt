@@ -1,3 +1,14 @@
+"""Module that contains the tests for the DWSIM-Python interface
+
+.. module:: tests
+   :synopsis: Tests for the DWSIM-Python interface
+
+.. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
+
+:Module: test_interface
+:Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
+
+"""
 import numpy as np
 import os
 import sys
@@ -6,8 +17,15 @@ import unittest
 from pyDWSIMopt.sim_opt import SimulationOptimization
 
 class TestDWSIM_Interface(unittest.TestCase):
+    """Class that contains the tests for the DWSIM-Python interface
+
+    Args:
+        unittest (): Standard python module for unit testting code.
+    """
 
     def test_SimOpt_instantiation(self):
+        """SimulationOptimziation class instantiation test.
+        """
         # Getting DWSIM path from system path
         for k,v in enumerate(os.environ['path'].split(';')):
             if v.find('\DWSIM')>-1:
@@ -34,6 +52,8 @@ class TestDWSIM_Interface(unittest.TestCase):
                                                                      
 
     def test_addRef2DWSIM(self):
+        """DWSIM dlls reference adding test.
+        """
 
         # Test import automation manager class
         self.test_SimOpt_instantiation()
@@ -45,6 +65,8 @@ class TestDWSIM_Interface(unittest.TestCase):
         self.assertIn('DWSIM.Automation', sys.modules)
 
     def test_connectDWSIM_simulation(self):
+        """DWSIM connection test.
+        """
         # Connect simulation in sim.path2sim
         self.test_SimOpt_instantiation()
         self.sim1.Add_refs()
