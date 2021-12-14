@@ -9,7 +9,7 @@ class TestDWSIM_Interface(unittest.TestCase):
 
     def test_SimOpt_instantiation(self):
         # Loading DWSIM simulation into Python (Simulation object)
-        ROOT_DIR = os.path.abspath(os.curdir + '\\..\\..')  # This is your Project Root
+        ROOT_DIR = os.path.dirname(__file__) + '\\..\\..' # This is your Project Root
         self.sim1 = SimulationOptimization(dof=np.array([]), path2sim= ROOT_DIR + "\\examples\\SMR_LNG\\SMR_2exp_phaseSep_MSHE_MITApy_generic.dwxmz", 
                             path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\")
         
