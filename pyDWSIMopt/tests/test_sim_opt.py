@@ -1,22 +1,43 @@
-import numpy as np
-import os
+# from IPython.terminal.embed import InteractiveShellEmbed
+# ipshell = InteractiveShellEmbed()
+# # ipshell.dummy_mode = True
+# ipshell.magic('%reset -sf')
 import sys
+import os
+import numpy as np
 import unittest
+
 from pyDWSIMopt.sim_opt import SimulationOptimization
 
 class TestSimOpt(unittest.TestCase):
 
     def test_SimOpt_reproductibility(self):
+        # Getting DWSIM path from system path
+        for k,v in enumerate(os.environ['path'].split(';')):
+            if v.find('\DWSIM')>-1:
+                path2dwsim = os.path.join(v, '')
+        if path2dwsim == None:
+            path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
+
         # Loading DWSIM simulation into Python (Simulation object)
-        ROOT_DIR = os.path.dirname(__file__) + '\\..\\..' # This is your Project Root
-        sim_smr = SimulationOptimization(dof=np.array([]), path2sim= ROOT_DIR + "\\examples\\SMR_LNG\\SMR_2exp_phaseSep_MSHE_MITApy_generic.dwxmz", 
-                            path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\")
+        try:
+            ROOT_DIR = os.path.dirname(__file__) # This is your Project Root
+        except:
+            ROOT_DIR = os.path.abspath(os.getcwd())
+        if ROOT_DIR.find('tests')>-1:
+            ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
+        print(ROOT_DIR)
+
+        sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "examples\\SMR_LNG\\SMR.dwxmz"), 
+                            path2dwsim = path2dwsim)
         sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR_2exp_phaseSep_MSHE_MITApy_generic2.dwxmz"
         sim_smr.Add_refs()
 
         # Instanciate automation manager object
         from DWSIM.Automation import Automation2
-        if ('interf' not in locals()):    # create automation manager
+
+        if ('interf' not in globals()):    # create automation manager
+            global interf
             interf = Automation2()
 
         # Connect simulation in sim.path2sim

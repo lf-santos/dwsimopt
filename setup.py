@@ -7,5 +7,13 @@ setup(name='dwsimopt',
       author='Lucas F. Santos',
       author_email='lfs.francisco.95@gmal.com',
       license='MIT',
-      packages=['pyDWSIMopt'],
-      zip_safe=False)
+      packages=['pyDWSIMopt', 'pyDWSIMopt\\tests'],
+      zip_safe=True,
+      install_requires=[
+          'pythonnet',
+          'pywin32',
+          'numpy',
+          'scikit-optimize',
+          'scipy',
+      ],
+)
