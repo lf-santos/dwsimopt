@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='dwsimopt',
-      version='0.0.1',
+      version='0.0.2',
       description='DWSIM automation with python for chemical process simulation optimization',
       url='http://https://github.com/lf-santos/pyDWSIMopt',
       author='Lucas F. Santos',
@@ -10,6 +10,7 @@ setup(name='dwsimopt',
       packages=['pyDWSIMopt', 'pyDWSIMopt\\tests'],
       zip_safe=True,
       install_requires=[
+          'wheel',
           'pythonnet',
           'pywin32',
           'numpy',

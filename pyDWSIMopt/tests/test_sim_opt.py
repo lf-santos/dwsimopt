@@ -44,7 +44,7 @@ class TestSimOpt(unittest.TestCase):
 
         sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "examples\\SMR_LNG\\SMR.dwxmz"), 
                             path2dwsim = path2dwsim)
-        sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR_2exp_phaseSep_MSHE_MITApy_generic2.dwxmz"
+        sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR2.dwxmz"
         sim_smr.Add_refs()
 
         # Instanciate automation manager object
