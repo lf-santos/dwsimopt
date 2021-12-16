@@ -1,5 +1,9 @@
-include *.txt
 include LICENSE
 recursive-include examples *.dwxmz
 recursive-include examples *.ipynb
 recursive-include examples *.png
+recursive-include docs *.bat
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+recursive-include examples *.py

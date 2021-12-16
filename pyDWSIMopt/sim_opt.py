@@ -51,7 +51,7 @@ class SimulationOptimization():
         from os import system as System
         from System.IO import Directory, Path, File
         from System import String, Environment
-
+        
         clr.AddReference(self.path2dwsim + "CapeOpen.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Automation.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Interfaces.dll")
