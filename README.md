@@ -1,6 +1,8 @@
 # pyDWSIMopt: DWSIM simulation optimization with Python!
 
-[![Documentation Status](https://readthedocs.org/projects/pydwsimopt/badge/?version=latest)](https://pydwsimopt.readthedocs.io/en/latest/?badge=latest)
+<a href='https://pydwsimopt.readthedocs.io/en/latest/?badge=latest' target="blank">
+    <img src='https://readthedocs.org/projects/pydwsimopt/badge/?version=latest' alt='Documentation Status' />
+</a>
 
 The Python DWSIM Optimization (`pyDWSIMopt`) is a library that automates DWSIM simulations for process optimization.
 The simulations dlls are embedded in the programming environment so that it can be accessd and modified by the optimization algorithms.
