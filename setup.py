@@ -7,9 +7,8 @@ from setuptools import setup
 PREREQS = ['numpy',
           'scipy',
           'wheel',
-          'pythonnet==3.0.0a2',
+          'pythonnet==2.5.2',
           'pywin32',
-          'pypiwin32',
           ]
 
 from setuptools.command.install import install
@@ -50,7 +49,7 @@ with open("README.md", "r", encoding="utf8", errors='ignore') as fh:
     long_description = fh.read()
 
 setup(name='dwsimopt',
-      version='0.0.3',
+      version='0.0.4',
       description='DWSIM automation with python for chemical process simulation optimization',
       url='http://https://github.com/lf-santos/pyDWSIMopt',
       author='Lucas F. Santos',
@@ -62,6 +61,9 @@ setup(name='dwsimopt',
           "dev": [
               "build",
               "twine",
+              "sphinx",
+              "sphinx_rtd_theme",
+              "check-manifest",
           ],
       },
       cmdclass=CMD_CLASSES,

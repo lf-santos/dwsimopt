@@ -13,12 +13,12 @@ in which the objective function ![equation](https://latex.codecogs.com/svg.latex
 
 # Requirements
 
-- Python 3.9.x (might work on older version, but def. not on 3.10+.
+- Python <= 3.9 (might work on older version, but def. not on 3.10+)
 - DWSIM v7 (open-source chemical process simulation. <a href="https://dwsim.inforside.com.br/new/">Download here</a>)
-- pythonnet 2.5.2 +
+- pythonnet <= 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\wheel``)
 - pywin32
-- scipy 1.7.x +
 - numpy 1.21.x +
+- scipy 1.7.x +
 - matplotlib 3.5.x +
 
 Or, start from a fresh environment and let the `pyDWSIMopt` install the dependencies. Except DWSIM that must be downloaded and installed manually.
@@ -34,7 +34,7 @@ cd pyDWSIMopt
 python setup.py install
 </pre>
 
-Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `Simulation` class to embed your `DMSWIM` simulation into Python. Modify the `fobj.py` to calculate the objective function and constraints of your simulation optimization problem.
+Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem. Solve the problem with a suitable optimization solver.
 
 # Citing us
 

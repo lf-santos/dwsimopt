@@ -23,7 +23,7 @@ author = 'Lucas F. Santos'
 
 # The full version, including alpha/beta/rc tags
 # from pyDWSIMopt import __version__
-release = '0.0.1'
+release = '0.0.4'
 
 
 # -- General configuration ---------------------------------------------------

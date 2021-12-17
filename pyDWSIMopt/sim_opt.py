@@ -59,13 +59,21 @@ class SimulationOptimization():
         clr.AddReference(self.path2dwsim + "DWSIM.SharedClasses.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Thermodynamics.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.UnitOperations.dll")
-
+        clr.AddReference(self.path2dwsim + "System.Buffers.dll")
+        try:
+            clr.AddReference(self.path2dwsim + "System.Buffers2.dll")
+        except Exception as e:
+            print(Exception)
+        print("More refs")
         clr.AddReference(self.path2dwsim + "DWSIM.Inspector.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.MathOps.dll")
         clr.AddReference(self.path2dwsim + "TcpComm.dll")
         clr.AddReference(self.path2dwsim + "Microsoft.ServiceBus.dll")
         clr.AddReference(self.path2dwsim + "System.Buffers.dll")
         clr.AddReference(self.path2dwsim + "SkiaSharp.dll")
+        clr.AddReference(self.path2dwsim + "OxyPlot")
+        # clr.AddReference(self.path2dwsim + "OxyPlot.WindowsForms")
+        # clr.AddReference(self.path2dwsim + "DWSIM.ExtensionMethods.Eto")
         
         print("added refs")
 
@@ -123,7 +131,7 @@ class SimulationOptimization():
         """
         # print(f"opt_functions calculation at x = {x}")
         if x.size != self.n_dof:
-            print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing?")
+            print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
         for i in range(self.n_dof):
             self.dof[i](x[i])
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
