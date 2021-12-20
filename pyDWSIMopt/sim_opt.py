@@ -27,15 +27,15 @@ class SimulationOptimization():
         :ivar n_f: Number of objective functions (still unsupported for n_f>1, *i.e.* multi-objective problem)
         :ivar n_g: Number of constraints
     """
-    def __init__(self, path2sim, dof=np.array([]), path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):  # pragma: no cover
+    def __init__(self, path2sim, dof=np.array([], dtype=object), path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):  # pragma: no cover
         self.path2sim = path2sim
         self.path2dwsim = path2dwsim
         self.x_val = np.array([])
         self.f_val = np.array([])
         self.g_val = np.array([])
-        self.f = np.array([])
+        self.f = np.array([], dtype=object)
         self.n_f = self.f.size
-        self.g = np.array([])
+        self.g = np.array([], dtype=object)
         self.n_g = self.g.size
         self.dof = dof
         self.n_dof = self.dof.size
@@ -96,14 +96,18 @@ class SimulationOptimization():
             if flowsheet is not None:
                 print("Simulation was loaded successfully")
 
-    def add_dof(self, dof_new):
+    def add_dof(self, dof_new, description=[None,None,None,None]):
         """Append a new degree of freedom to the SimulationOptimization object
 
         Args:
             dof_new (lambda function): Lambda function that assign the appended degrees of freedom of the DWSIM process simulation
         """
-        self.dof = np.append(self.dof, dof_new)
-        self.n_dof = self.dof.size
+        if self.dof.size==0:
+            self.dof = np.append(self.dof, np.append( dof_new, description ) )
+        else:
+            self.dof = np.block( [ [self.dof],  [np.append( dof_new, description)] ] )
+        self.n_dof += 1# int(self.dof.size)
+        # self.dof.reshape((self.n_dof,2))
 
     def add_fobj(self, func):
         """Append a new objective function to the SimulationOptimization object
@@ -133,7 +137,7 @@ class SimulationOptimization():
         if x.size != self.n_dof:
             print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
         for i in range(self.n_dof):
-            self.dof[i](x[i])
+            self.dof[i][0](x[i])
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.05)
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
