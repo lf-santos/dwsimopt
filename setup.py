@@ -6,6 +6,7 @@ from setuptools import setup
 #-------------------------------------------------
 PREREQS = ['numpy',
           'scipy',
+          'scikit-opt',
           'wheel',
           'pythonnet==2.5.2',
           'pywin32',
@@ -49,13 +50,13 @@ with open("README.md", "r", encoding="utf8", errors='ignore') as fh:
     long_description = fh.read()
 
 setup(name='dwsimopt',
-      version='0.0.4',
+      version='0.0.5',
       description='DWSIM automation with python for chemical process simulation optimization',
-      url='http://https://github.com/lf-santos/pyDWSIMopt',
+      url='http://https://github.com/lf-santos/dwsimopt',
       author='Lucas F. Santos',
       author_email='lfs.francisco.95@gmal.com',
       license='MIT',
-      packages=['pyDWSIMopt', 'pyDWSIMopt\\tests'],
+      packages=['dwsimopt', 'dwsimopt\\tests'],
       install_requires=PREREQS,
       extras_require = {
           "dev": [

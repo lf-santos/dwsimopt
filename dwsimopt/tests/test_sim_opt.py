@@ -14,7 +14,7 @@ import os
 import numpy as np
 import unittest
 
-from pyDWSIMopt.sim_opt import SimulationOptimization
+from dwsimopt.sim_opt import SimulationOptimization
 
 class TestSimOpt(unittest.TestCase):
     """Class that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet.
@@ -45,17 +45,24 @@ class TestSimOpt(unittest.TestCase):
         sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "examples\\SMR_LNG\\SMR.dwxmz"), 
                             path2dwsim = path2dwsim)
         sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR2.dwxmz"
-        sim_smr.Add_refs()
+        sim_smr.add_refs()
 
         # Instanciate automation manager object
         from DWSIM.Automation import Automation2
 
-        if ('interf' not in globals()):    # create automation manager
-            global interf
+        # print('=========================================================LOCALS============================================')
+        # print(locals())
+        # print('=========================================================GLOBALS============================================')
+        # print(globals())
+        if ('interf' not in locals()):    # create automation manager
             interf = Automation2()
+        # else:
+        #     interf = locals()['Automation2']
+        # print('=========================================================Interf============================================')
+        # print(dir(interf))
 
         # Connect simulation in sim.path2sim
-        sim_smr.Connect(interf)
+        sim_smr.connect(interf)
 
         # Add dof
         sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(7,x))
