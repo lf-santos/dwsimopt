@@ -18,10 +18,9 @@ Although very efficient to describe in details complex systems that would otherw
 in which the objective function ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20f%3A%5Cmathbb%7BR%7D%5En%5Cmapsto%20%5Cmathbb%7BR%7D%7D) and constraints ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20%5Ctextbf%7Bg%7D%3A%5Cmathbb%7BR%7D%5En%5Cmapsto%20%5Cmathbb%7BR%7D%5Eq%7D), being *q* the number of constraints, are somewhat expensive to calculate, slightly noisy, and black-box functions, *i.e.* there is no available mathematical expression for *f* or **g**, but for a given ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20%5Ctextbf%7Bx%7D%5Cin%5Cmathcal%7BD%7D%5Csubseteq%5Cmathbb%7BR%7D%5En%7D) the value of *f*(**x**) and **f**(**x**) are calculated in a computer code simulation with some noise.
 
 # Requirements
-
 - Python <= 3.9 (python 3.8 recommended -- using python 3.9 requires installing dwsimopt from ``setup.py``)
 - DWSIM v7 (open-source chemical process simulation. <a href="https://dwsim.inforside.com.br/new/">Download here</a>)
-- pythonnet <= 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\wheel``)
+- pythonnet == 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\pythonnet_wheel``)
 - pywin32
 - numpy
 - scipy
@@ -41,6 +40,7 @@ python setup.py install
 </pre>
 
 Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsimdata exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended).
+
 
 # Citing us
 
