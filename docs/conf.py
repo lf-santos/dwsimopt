@@ -23,7 +23,7 @@ author = 'Lucas F. Santos'
 
 # The full version, including alpha/beta/rc tags
 # from dwsimopt import __version__
-release = '0.0.4'
+release = '0.0.5'
 
 
 # -- General configuration ---------------------------------------------------

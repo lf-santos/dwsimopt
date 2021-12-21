@@ -1,7 +1,7 @@
-pyDWSIMopt
+dwsimopt
 ==========
 
 .. toctree::
    :maxdepth: 1
 
-   pyDWSIMopt
+   dwsimopt

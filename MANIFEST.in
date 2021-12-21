@@ -7,3 +7,7 @@ recursive-include docs *.py
 recursive-include docs *.rst
 recursive-include docs Makefile
 recursive-include examples *.py
+include *.yaml
+include tox.ini
+recursive-include docs *.txt
+recursive-include dwsimopt *.dll

@@ -6,7 +6,7 @@
 </a>
 [![License](https://img.shields.io/pypi/l/dwsimopt.svg)](https://github.com/lf-santos/dwsimopt/LICENSE)
 
-The Python DWSIM Optimization (`dwsimopt`) is a library that automates DWSIM simulations for process optimization.
+The DWSIM Optimization (`dwsimopt`) is a Python library that automates DWSIM simulations for process optimization.
 The simulations dlls are embedded in the programming environment so that it can be accessd and modified by the optimization algorithms.
 
 # Mathematical background
@@ -19,13 +19,13 @@ in which the objective function ![equation](https://latex.codecogs.com/svg.latex
 
 # Requirements
 
-- Python <= 3.9 (might work on older version, but def. not on 3.10+)
+- Python <= 3.9 (python 3.8 recommended -- using python 3.9 requires installing dwsimopt from ``setup.py``)
 - DWSIM v7 (open-source chemical process simulation. <a href="https://dwsim.inforside.com.br/new/">Download here</a>)
 - pythonnet <= 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\wheel``)
 - pywin32
-- numpy 1.21.x +
-- scipy 1.7.x +
-- matplotlib 3.5.x +
+- numpy
+- scipy
+- scikit-opt
 
 Or, start from a fresh environment and let the `dwsimopt` install the dependencies. Except DWSIM that must be downloaded and installed manually.
 
@@ -40,7 +40,7 @@ cd dwsimopt
 python setup.py install
 </pre>
 
-Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem. Solve the problem with a suitable optimization solver.
+Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsimdata exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended).
 
 # Citing us
 
