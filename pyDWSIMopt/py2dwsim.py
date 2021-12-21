@@ -1,4 +1,4 @@
-"""Module that contains functions of data exchange from python to dwsim
+"""Module that contains functions for data exchange from-to python to-from dwsim
 
 .. module:: py2dwsim.py
    :synopsis: Data exchange from python to dwsim
@@ -15,7 +15,7 @@ from DWSIM.SharedClasses.SystemsOfUnits import Converter
 def set_property(x, obj):
     obj = x
 
-def assign_pddx(desc, sim, element="dof"):
+def create_pddx(desc, sim, element="dof", assign=True):
     #assign python-dwsim data exchange channel
     m = np.shape(desc)
 
@@ -30,6 +30,7 @@ def assign_pddx(desc, sim, element="dof"):
         m = m[0]
 
     # If multiple Inputs:
+    ff = []
     for ite in range(m):
          # Get what element is added do sim object
         if element=="dof":
@@ -58,7 +59,35 @@ def assign_pddx(desc, sim, element="dof"):
             f = toDwsim(desc_ite, sim)
         else:
             f = fromDwsim(desc_ite, sim)
-        
+
+        ff.append(f)
+    if assign==True:
+        assign_pddx(ff, desc, sim, element)
+    else:
+        return ff
+
+def assign_pddx(f, desc, sim, element="dof"):
+    #assign python-dwsim data exchange channel
+    m = np.size(f)
+    
+    # If multiple Inputs:
+    for ite in range(m):
+         # Get what element is added do sim object
+        if element=="dof":
+            elem_add = sim.add_dof
+            elem = sim.dof
+            elem_n = sim.n_dof
+        elif element=="fobj":
+            elem_add = sim.add_fobj
+            elem = sim.f
+            elem_n = sim.n_f
+        elif element=="constraint":
+            elem_add = sim.add_constraint
+            elem = sim.g
+            elem_n = sim.n_g
+        else:
+            print(f"There is no such element in {sim} object")
+
         # Has this element already added? Disregard repetitive element
         if elem == np.array([]):
             elem_add( f, desc )
@@ -76,97 +105,17 @@ def assign_pddx(desc, sim, element="dof"):
             if addQuery:
                 elem_add( f, desc )
 
-def assignDoF(input, sim):
-    m = np.shape(input)
-
-    # Test if input has length 3
-    if m[-1] < 2:
-        print("Input list must be [object name (str), object property (str), compound or mixture (str), unit (str)='']")
-
-    # Get only the number of inputs to be assigned to dwsim
-    if len(m)<=1:
-        m=1
-    else:
-        m = m[0]
-
-    # If multiple Inputs:
-    for ite in range(m):
-        if m>1:
-            input_ite = input[ite]
-        else:
-            input_ite = input
-        
-        # Get function `f` that communicates with dwsim
-        f = toDwsim(input_ite, sim)
-
-        # Has this DoF already added? Disregard repetitive DoF
-        if sim.dof == np.array([]):
-            sim.add_dof( f, input )
-        else:
-            addQuery = True
-            if sim.n_dof == 1:
-                rows = sim.dof[1:len(input)]
-                if np.all( np.array(input[:len(input)-1], dtype=object) == rows ):
-                    addQuery = False
-            else:
-                for row in sim.dof:
-                    rows = row[1:len(input)]
-                    if np.all( np.array(input[:len(input)-1], dtype=object) == rows ):
-                        addQuery = False
-            if addQuery:
-                sim.add_dof( f, input )
-
-def assignF(input, sim):
-    m = np.shape(input)
-
-    # Test if input has length 3
-    if m[-1] < 2:
-        print("Input list must be [object name (str), object property (str), compound or mixture (str), unit (str)='']")
-
-    # Get only the number of inputs to be assigned to dwsim
-    if len(m)<=1:
-        m=1
-    else:
-        m = m[0]
-
-    # If multiple Inputs:
-    for ite in range(m):
-        if m>1:
-            input_ite = input[ite]
-        else:
-            input_ite = input
-        
-        # Get function `f` that communicates with dwsim
-        f = toDwsim(input_ite, sim)
-
-        # Has this DoF already added? Disregard repetitive DoF
-        if sim.f == np.array([]):
-            sim.add_fobj( f, input )
-        else:
-            addQuery = True
-            if sim.n_f == 1:
-                rows = sim.f[1:len(input)]
-                if np.all( np.array(input[:len(input)-1], dtype=object) == rows ):
-                    addQuery = False
-            else:
-                for row in sim.f:
-                    rows = row[1:len(input)]
-                    if np.all( np.array(input[:len(input)-1], dtype=object) == rows ):
-                        addQuery = False
-            if addQuery:
-                sim.add_fobj( f, input )
-
 def toDwsim(desc, sim):
     # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
-        print(obj.GetDisplayName())
+        # print(obj.GetDisplayName())
     except:
         print(f"there is no {desc[0]} in {sim}")
         return
 
     name = obj.GetType().FullName.split('.')
-    print(name)
+    # print(name)
 
     # Dealing with material stream DoF:
     if name[-1] == 'MaterialStream':
@@ -215,13 +164,13 @@ def fromDwsim(desc, sim):
     # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
-        print(obj.GetDisplayName())
+        # print(obj.GetDisplayName())
     except:
         print(f"there is no {desc[0]} in {sim}")
         return
 
     name = obj.GetType().FullName.split('.')
-    print(name)
+    # print(name)
 
     # Dealing with material stream DoF:
     if name[-1] == 'MaterialStream':
@@ -267,9 +216,3 @@ def fromDwsim(desc, sim):
         f = None
 
     return f
-
-if __name__ == "__main__":
-    assign2dwsim( [["oi", "mundo", 10],
-                    ["tchau", "mundo", -1]], None )
-    sim = None
-    assign2dwsim( ["oi", "mundo", 10], sim )

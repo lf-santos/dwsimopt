@@ -6,6 +6,7 @@ from setuptools import setup
 #-------------------------------------------------
 PREREQS = ['numpy',
           'scipy',
+          'scikit-opt',
           'wheel',
           'pythonnet==2.5.2',
           'pywin32',

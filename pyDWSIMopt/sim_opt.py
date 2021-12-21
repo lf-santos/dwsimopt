@@ -180,14 +180,13 @@ class SimulationOptimization():
                 for i, ff in enumerate(self.f):
                     self.f_val[i] = ff[0]()
             else:
-                self.f_val = self.f[0]()
+                self.f_val = np.array([self.f[0]()])
 
             if self.n_g>1:
                 for i, gg in enumerate(self.g):
-                    print(gg)
                     self.g_val[i] = gg[0]()
             else:
-                self.g_val = self.g[0]()
+                self.g_val = np.array([self.g[0]()])
         print(f"f = {self.f_val}, g = {self.g_val} at x = {x}")
         return np.append(self.f_val, self.g_val)
 
@@ -204,7 +203,7 @@ class SimulationOptimization():
         self.calculate_optProblem(x)
         fpen = 0
         for i in range(self.n_f):
-            fpen += self.f_val[i]
+            fpen += np.asarray(self.f_val)[i]
         for i in range(self.n_g):
             fpen += pen*max(0, self.g_val[i])
         return fpen
