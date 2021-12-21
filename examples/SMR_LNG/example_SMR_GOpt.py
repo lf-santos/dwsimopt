@@ -15,11 +15,11 @@ print(dir_path)
 gop_solver = 'bb'
 
 import sys
-if 'pyDWSIMopt.sim_opt' in sys.modules:  # Is the module in the register?
-    del sys.modules['pyDWSIMopt.sim_opt']  # If so, remove it.
+if 'dwsimopt.sim_opt' in sys.modules:  # Is the module in the register?
+    del sys.modules['dwsimopt.sim_opt']  # If so, remove it.
     del SimulationOptimization
     print('hi')
-from pyDWSIMopt.sim_opt import SimulationOptimization
+from dwsimopt.sim_opt import SimulationOptimization
 
 # Getting DWSIM path from system path
 for k,v in enumerate(os.environ['path'].split(';')):

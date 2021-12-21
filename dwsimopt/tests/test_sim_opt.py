@@ -14,7 +14,7 @@ import os
 import numpy as np
 import unittest
 
-from pyDWSIMopt.sim_opt import SimulationOptimization
+from dwsimopt.sim_opt import SimulationOptimization
 
 class TestSimOpt(unittest.TestCase):
     """Class that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet.
@@ -50,8 +50,16 @@ class TestSimOpt(unittest.TestCase):
         # Instanciate automation manager object
         from DWSIM.Automation import Automation2
 
+        # print('=========================================================LOCALS============================================')
+        # print(locals())
+        # print('=========================================================GLOBALS============================================')
+        # print(globals())
         if ('interf' not in locals()):    # create automation manager
             interf = Automation2()
+        # else:
+        #     interf = locals()['Automation2']
+        # print('=========================================================Interf============================================')
+        # print(dir(interf))
 
         # Connect simulation in sim.path2sim
         sim_smr.connect(interf)

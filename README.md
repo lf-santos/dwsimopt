@@ -1,12 +1,12 @@
-# pyDWSIMopt: DWSIM simulation optimization with Python!
+# dwsimopt: DWSIM simulation optimization with Python!
 
 [![PyPI](https://img.shields.io/pypi/v/dwsimopt)](https://pypi.org/project/dwsimopt/)
 <a href='https://pydwsimopt.readthedocs.io/en/latest/?badge=latest' target="blank">
     <img src='https://readthedocs.org/projects/pydwsimopt/badge/?version=latest' alt='Documentation Status' />
 </a>
-[![License](https://img.shields.io/pypi/l/dwsimopt.svg)](https://github.com/lf-santos/pyDWSIMopt/LICENSE)
+[![License](https://img.shields.io/pypi/l/dwsimopt.svg)](https://github.com/lf-santos/dwsimopt/LICENSE)
 
-The Python DWSIM Optimization (`pyDWSIMopt`) is a library that automates DWSIM simulations for process optimization.
+The Python DWSIM Optimization (`dwsimopt`) is a library that automates DWSIM simulations for process optimization.
 The simulations dlls are embedded in the programming environment so that it can be accessd and modified by the optimization algorithms.
 
 # Mathematical background
@@ -27,7 +27,7 @@ in which the objective function ![equation](https://latex.codecogs.com/svg.latex
 - scipy 1.7.x +
 - matplotlib 3.5.x +
 
-Or, start from a fresh environment and let the `pyDWSIMopt` install the dependencies. Except DWSIM that must be downloaded and installed manually.
+Or, start from a fresh environment and let the `dwsimopt` install the dependencies. Except DWSIM that must be downloaded and installed manually.
 
 # Installation
 
@@ -35,8 +35,8 @@ Install the latest version of this repository to your machine
 
 <pre>pip install dwsimopt</pre>
 or
-<pre>git clone https://github.com/lf-santos/pyDWSIMopt.git
-cd pyDWSIMopt
+<pre>git clone https://github.com/lf-santos/dwsimopt.git
+cd dwsimopt
 python setup.py install
 </pre>
 
@@ -44,7 +44,7 @@ Make sure you have all the required packages and software. Navegate throught the
 
 # Citing us
 
-If you use pyDWSIMopt, plese cite the following paper: <a href="https://doi.org/10.1016/j.ces.2021.116699" title="simulation optimization paper">L. F. Santos, C. B. B. Costa, J. A. Caballero, M. A. Ravagnani, Kriging-assisted constrained optimization of single-mixed refrigerant natural gas liquefaction process, Chemical Engineering Science (2021).
+If you use dwsimopt, plese cite the following paper: <a href="https://doi.org/10.1016/j.ces.2021.116699" title="simulation optimization paper">L. F. Santos, C. B. B. Costa, J. A. Caballero, M. A. Ravagnani, Kriging-assisted constrained optimization of single-mixed refrigerant natural gas liquefaction process, Chemical Engineering Science (2021).
 116699doi:https://doi.org/10.1016/j.ces.2021.116699.</a>
 
 <pre>

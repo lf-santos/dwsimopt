@@ -17,12 +17,12 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyDWSIMopt'
+project = 'dwsimopt'
 copyright = '2021, Lucas F. Santos'
 author = 'Lucas F. Santos'
 
 # The full version, including alpha/beta/rc tags
-# from pyDWSIMopt import __version__
+# from dwsimopt import __version__
 release = '0.0.4'
 
 

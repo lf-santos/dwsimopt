@@ -14,7 +14,7 @@ import os
 import sys
 import unittest
 
-from pyDWSIMopt.sim_opt import SimulationOptimization
+from dwsimopt.sim_opt import SimulationOptimization
 
 class TestDWSIM_Interface(unittest.TestCase):
     """Class that contains the tests for the DWSIM-Python interface
