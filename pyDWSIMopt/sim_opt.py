@@ -40,7 +40,7 @@ class SimulationOptimization():
         self.dof = dof
         self.n_dof = self.dof.size
     
-    def Add_refs(self):
+    def add_refs(self):
         """This method add reference in the proggraming environment to the DWSIM dlls, so they can be imported.
         """
         import pythoncom
@@ -48,9 +48,9 @@ class SimulationOptimization():
 
         import clr
 
-        from os import system as System
-        from System.IO import Directory, Path, File
-        from System import String, Environment
+        # from os import system as System
+        # from System.IO import Directory, Path, File
+        # from System import String, Environment
         
         clr.AddReference(self.path2dwsim + "CapeOpen.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Automation.dll")
@@ -63,8 +63,9 @@ class SimulationOptimization():
         try:
             clr.AddReference(self.path2dwsim + "System.Buffers2.dll")
         except Exception as e:
-            print(Exception)
-        print("More refs")
+            pass
+            # print(Exception)
+        # print("More refs")
         clr.AddReference(self.path2dwsim + "DWSIM.Inspector.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.MathOps.dll")
         clr.AddReference(self.path2dwsim + "TcpComm.dll")
@@ -77,7 +78,7 @@ class SimulationOptimization():
         
         print("added refs")
 
-    def Connect(self, interf):
+    def connect(self, interf):
         """This method uses the automation manager object to load the DWSIM flowsheet and store them into self.
 
         Args:
@@ -109,23 +110,33 @@ class SimulationOptimization():
         self.n_dof += 1# int(self.dof.size)
         # self.dof.reshape((self.n_dof,2))
 
-    def add_fobj(self, func):
+    def add_fobj(self, func, description=[None,None,None,None]):
         """Append a new objective function to the SimulationOptimization object
 
         Args:
             func (lambda function): Lambda function that returns a numpy.array with objective function value after converging the simulation
         """
-        self.f = np.append(self.f, func)
-        self.n_f = self.f.size
+        if self.f.size==0:
+            self.f = np.append(self.f, np.append( func, description ) )
+        else:
+            self.f = np.block( [ [self.f],  [np.append( func, description)] ] )
+        self.n_f += 1
+        # self.f = np.append(self.f, func)
+        # self.n_f = self.f.size
 
-    def add_constraint(self, g_func):
+    def add_constraint(self, g_func, description=[None,None,None,None]):
         """Append a new constraint to the SimulationOptimization object
 
         Args:
             g_func (lambda function): Lambda function that returns a numpy.array with constraint value after converging the simulation
         """
-        self.g = np.append(self.g, g_func)
-        self.n_g = self.g.size
+        if self.g.size==0:
+            self.g = np.append(self.g, np.append( g_func, description ) )
+        else:
+            self.g = np.block( [ [self.g],  [np.append( g_func, description)] ] )
+        self.n_g += 1
+        # self.g = np.append(self.g, g_func)
+        # self.n_g = self.g.size
 
     def converge_simulation(self, x):
         """Converge the simulation with degrees of freedom values of ``x``
@@ -163,12 +174,20 @@ class SimulationOptimization():
         if delta_x > 1e-10:
             self.converge_simulation(x)
             self.x_val = np.array(x)
-            self.f_val = np.zeros(self.f.size)
-            self.g_val = np.zeros(self.g.size)
-            for i in range(self.n_f):
-                self.f_val[i] = self.f[i]()
-            for i in range(self.n_g):
-                self.g_val[i] = self.g[i]()
+            self.f_val = np.zeros(self.n_f)
+            self.g_val = np.zeros(self.n_g)
+            if self.n_f>1:
+                for i, ff in enumerate(self.f):
+                    self.f_val[i] = ff[0]()
+            else:
+                self.f_val = self.f[0]()
+
+            if self.n_g>1:
+                for i, gg in enumerate(self.g):
+                    print(gg)
+                    self.g_val[i] = gg[0]()
+            else:
+                self.g_val = self.g[0]()
         print(f"f = {self.f_val}, g = {self.g_val} at x = {x}")
         return np.append(self.f_val, self.g_val)
 

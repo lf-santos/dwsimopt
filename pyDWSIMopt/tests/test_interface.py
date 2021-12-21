@@ -57,7 +57,7 @@ class TestDWSIM_Interface(unittest.TestCase):
 
         # Test import automation manager class
         self.test_SimOpt_instantiation()
-        self.sim1.Add_refs()
+        self.sim1.add_refs()
         try:
             from DWSIM.Automation import Automation2
         except ModuleNotFoundError:
@@ -69,20 +69,19 @@ class TestDWSIM_Interface(unittest.TestCase):
         """
         # Connect simulation in sim.path2sim
         self.test_SimOpt_instantiation()
-        self.sim1.Add_refs()
+        self.sim1.add_refs()
         try:
             from DWSIM.Automation import Automation2
         except ModuleNotFoundError:
             pass
         self.assertIn('DWSIM.Automation', sys.modules)
-        if ('interf' not in globals()):    # create automation manager
-            global interf
+        if ('interf' not in locals()):    # create automation manager
             interf = Automation2()
 
         #Connect simulation in sim.path2sim
-        self.assertIsNone(self.sim1.Connect(interf))
+        self.assertIsNone(self.sim1.connect(interf))
         try:
-            self.sim2.Connect(interf)
+            self.sim2.connect(interf)
         except Exception as e:
             exception = e.__class__
         self.assertIsNotNone(exception)

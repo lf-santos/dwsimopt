@@ -32,7 +32,7 @@ if path2dwsim == None:
 sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(dir_path, "examples\\SMR_LNG\\SMR.dwxmz"), 
                      path2dwsim = path2dwsim)
 sim_smr.savepath = os.path.join(dir_path, "examples\\SMR_LNG\\SMR2.dwxmz")
-sim_smr.Add_refs()
+sim_smr.add_refs()
 
 # Instanciate automation manager object
 from DWSIM.Automation import Automation2
@@ -40,7 +40,7 @@ if ('interf' not in locals()):    # create automation manager
     interf = Automation2()
 
 # Connect simulation in sim.path2sim
-sim_smr.Connect(interf)
+sim_smr.connect(interf)
 
 # Add dof
 sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(7,x))
