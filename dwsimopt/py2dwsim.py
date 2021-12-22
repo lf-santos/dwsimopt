@@ -128,6 +128,8 @@ def toDwsim(desc, sim):
         elif desc[1] == 'MolarFlow':
             f = lambda x: obj.SetMolarFlow( str(x) + f" {desc[3]}" )
         elif desc[1] == 'CompoundMassFlow':
+            # def f(x):
+            #     return obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
             f = lambda x: obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
         elif desc[1] == 'CompoundMolarFlow':
             f = lambda x: obj.SetOverallCompoundMolarFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
@@ -194,6 +196,8 @@ def fromDwsim(desc, sim):
     # Dealing with energy stram DoF:
     elif name[-1] == 'EnergyStream':
         if desc[1] == 'EnergyFlow':
+            # def f(x):
+            #     return Converter.ConvertFromSI( f"{desc[3]}", obj.EnergyFlow) 
             f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.EnergyFlow) 
         else:
             print(f"No property of {desc[0]} named {desc[1]}")
@@ -209,6 +213,8 @@ def fromDwsim(desc, sim):
         elif desc[1] == 'OutletTemperature':
             f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.OutletTemperature)
         elif desc[1] == 'OutputVariable':
+            # def f(x):
+            #     return obj.OutputVariables[desc[2]]
             f = lambda: obj.OutputVariables[desc[2]]
         else:
             f=None
