@@ -144,7 +144,7 @@ class SimulationOptimization():
         Args:
             x (numpy.array): Array of degrees of freedom values to be simulated
         """
-        # print(f"opt_functions calculation at x = {x}")
+        print(f"opt_functions calculation at x = {x}")
         if x.size != self.n_dof:
             print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
         for i in range(self.n_dof):
