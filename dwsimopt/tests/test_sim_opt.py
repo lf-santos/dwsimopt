@@ -35,11 +35,16 @@ class TestSimOpt(unittest.TestCase):
             path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
 
         # Loading DWSIM simulation into Python (Simulation object)
-        ROOT_DIR = PATH2DWSIMOPT
+        try:
+            ROOT_DIR = os.path.dirname(__file__) # This is your Project Root
+        except:
+            ROOT_DIR = os.path.abspath(os.getcwd())
+        if ROOT_DIR.find('tests')>-1:
+            ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
         print(ROOT_DIR)
-        sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "examples\\SMR_LNG\\SMR.dwxmz"), 
+        sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
                             path2dwsim = path2dwsim)
-        sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR2.dwxmz"
+        sim_smr.savepath = os.getcwd() + "\\dwsimopt\\tests\\test_sim2.dwxmz"
         sim_smr.add_refs()
 
         # Instanciate automation manager object

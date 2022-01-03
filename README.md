@@ -39,7 +39,7 @@ cd dwsimopt
 python setup.py install
 </pre>
 
-Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsimdata exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended).
+Make sure you have all the required packages and software. Navegate throught the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsim data exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended).
 
 
 # Citing us
