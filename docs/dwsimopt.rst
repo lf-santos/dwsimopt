@@ -1,14 +1,3 @@
-dwsimopt package
-==================
-
-Subpackages
------------
-
-.. toctree::
-   :maxdepth: 2
-
-   dwsimopt.tests
-
 dwsimopt.sim\_opt.py
 --------------------------
 
@@ -24,3 +13,11 @@ dwsimopt.py2dwsim.py
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+dwsimopt.tests
+--------------------------
+.. toctree::
+   :maxdepth: 2
+
+   dwsimopt.tests

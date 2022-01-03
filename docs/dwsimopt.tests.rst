@@ -1,7 +1,3 @@
-dwsimopt.tests package
-========================
-
-
 dwsimopt.tests.test\_interface.py
 ---------------------------------------
 

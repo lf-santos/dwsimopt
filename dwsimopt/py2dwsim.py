@@ -10,12 +10,21 @@
 
 """
 import numpy as np
-from DWSIM.SharedClasses.SystemsOfUnits import Converter
-
-def set_property(x, obj):
-    obj = x
 
 def create_pddx(desc, sim, element="dof", assign=True):
+    """Main function from py2dwsim.py that creates a python-dwsim data exchange channel.
+    It can return a np.array of getter or setter functions from/to the dwsim simulation.
+    The default is to assing the data exchange hub to the SimulationOptimization object passed to this function.
+
+    Args:
+        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit']
+        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization
+        element (str, optional): optimization problem element: 'dof', 'fobj', or 'constraint'. Defaults to "dof".
+        assign (bool, optional): if True: assign the python-dwsim data exchange channel to the corresponding `element` in `sim`, else: return lambda function. Defaults to True.
+
+    Returns:
+        numpy.array: np.array of getter or setter functions from/to the dwsim simulation if `assign==False`
+    """
     #assign python-dwsim data exchange channel
     m = np.shape(desc)
 
@@ -56,9 +65,9 @@ def create_pddx(desc, sim, element="dof", assign=True):
         
         # Get function `f` that communicates with dwsim
         if element=="dof":
-            f = toDwsim(desc_ite, sim)
+            f = _toDwsim(desc_ite, sim)
         else:
-            f = fromDwsim(desc_ite, sim)
+            f = _fromDwsim(desc_ite, sim)
 
         ff.append(f)
     if assign==True:
@@ -67,6 +76,14 @@ def create_pddx(desc, sim, element="dof", assign=True):
         return ff
 
 def assign_pddx(f, desc, sim, element="dof"):
+    """Assign pddx to `sim` object. This is useful for more complex objective/constaint functions. Basic use is to generate pddx getter functions to define a more complicated one and assign to `sim`.
+
+    Args:
+        f (function): function (def or lambda) containing the definition of objective/constraint function.
+        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit']
+        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization
+        element (str, optional): optimization problem element: 'dof', 'fobj', or 'constraint'. Defaults to "dof".
+    """
     #assign python-dwsim data exchange channel
     m = np.size(f)
     
@@ -105,7 +122,18 @@ def assign_pddx(f, desc, sim, element="dof"):
             if addQuery:
                 elem_add( f, desc )
 
-def toDwsim(desc, sim):
+def _toDwsim(desc, sim):
+    """Helper function that define a setter function to the dwsim object described in `desc` in `sim`.
+
+    Args:
+        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit'].
+        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization.
+
+    Returns:
+        function: setter function to dwsim object described in `desc` in `sim`.
+    """
+    from DWSIM.SharedClasses.SystemsOfUnits import Converter
+
     # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
@@ -141,7 +169,7 @@ def toDwsim(desc, sim):
     # Dealing with energy stram DoF:
     elif name[-1] == 'EnergyStream':
         if desc[1] == 'EnergyFlow':
-            f = lambda x: set_property( str(x) + f" {desc[3]}", obj.EnergyFlow )
+            f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.EnergyFlow )
         else:
             print(f"No property of {desc[0]} named {desc[1]}")
             f = None
@@ -150,11 +178,11 @@ def toDwsim(desc, sim):
         # calcMode = obj.CalcMode
         if desc[1] == 'OutletPressure':
             if name[-1]=='Compressor':
-                f = lambda x: set_property( str(x) + f" {desc[3]}", obj.POut )
+                f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.POut )
             else:
-                f = lambda x: set_property( str(x) + f" {desc[3]}", obj.OutletPressure )
+                f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletPressure )
         elif desc[1] == 'OutletTemperature':
-            f = lambda x: set_property( str(x) + f" {desc[3]}", obj.OutletTemperature )
+            f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletTemperature )
         else:
             f=None
     else:
@@ -162,7 +190,18 @@ def toDwsim(desc, sim):
 
     return f
     
-def fromDwsim(desc, sim):
+def _fromDwsim(desc, sim):
+    """Helper function that define a getter function to the dwsim object described in `desc` in `sim`.
+
+    Args:
+        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit'].
+        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization.
+
+    Returns:
+        function: getter function to dwsim object described in `desc` in `sim`.
+    """
+    from DWSIM.SharedClasses.SystemsOfUnits import Converter
+
     # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
@@ -222,3 +261,12 @@ def fromDwsim(desc, sim):
         f = None
 
     return f
+
+def _set_property(x, obj):
+    """Helper setter function. obj <- x
+
+    Args:
+        x (Float): value to be set to obj property
+        obj (Object property): object property to recieve x value
+    """
+    obj = x

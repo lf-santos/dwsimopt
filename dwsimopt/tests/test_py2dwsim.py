@@ -15,6 +15,7 @@ import numpy as np
 import unittest
 
 from dwsimopt.sim_opt import SimulationOptimization
+from dwsimopt.utils import PATH2DWSIMOPT
 
 class TestSimOpt(unittest.TestCase):
     """Class that contains the tests for the Python-DWSIM data exchange interface
@@ -23,8 +24,8 @@ class TestSimOpt(unittest.TestCase):
         unittest (): Standard python module for unit testting code.
     """
 
-    def test_SimOpt_reproductibility(self):
-        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
+    def test_SimOpt_py2dwsim(self):
+        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility using py2dwsim interface.
         """
         # Getting DWSIM path from system path
         for k,v in enumerate(os.environ['path'].split(';')):
@@ -34,14 +35,7 @@ class TestSimOpt(unittest.TestCase):
             path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
 
         # Loading DWSIM simulation into Python (Simulation object)
-        try:
-            ROOT_DIR = os.path.dirname(__file__) # This is your Project Root
-        except:
-            ROOT_DIR = os.path.abspath(os.getcwd())
-        if ROOT_DIR.find('tests')>-1:
-            ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
-        print(ROOT_DIR)
-
+        ROOT_DIR = PATH2DWSIMOPT
         sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "examples\\SMR_LNG\\SMR.dwxmz"), 
                             path2dwsim = path2dwsim)
         sim_smr.savepath = os.getcwd() + "\\examples\\SMR_LNG\\SMR2.dwxmz"

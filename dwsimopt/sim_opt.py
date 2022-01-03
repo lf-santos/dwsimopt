@@ -17,6 +17,7 @@ class SimulationOptimization():
 
         :ivar path2sim: Absolute path to a DWSIM simulation (.dwxmz)
         :ivar path2dwsim: Absolute path to the DWSIM installation
+        :ivar savepath: Absolute path to save the DWSIM simulation (.dwxmz)
         :ivar x_val: Last simulated degrees of freedom values
         :ivar f_val: Last simulated objective functions values
         :ivar g_val: Last simulated constraints values
@@ -27,9 +28,15 @@ class SimulationOptimization():
         :ivar n_f: Number of objective functions (still unsupported for n_f>1, *i.e.* multi-objective problem)
         :ivar n_g: Number of constraints
     """
-    def __init__(self, path2sim, dof=np.array([], dtype=object), path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"):  # pragma: no cover
+    def __init__(self, path2sim, dof=np.array([], dtype=object), 
+                path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\", 
+                savepath = ""):  # pragma: no cover
         self.path2sim = path2sim
         self.path2dwsim = path2dwsim
+        if savepath=="":
+            self.savepath = path2sim
+        else:
+            self.savepath = savepath
         self.x_val = np.array([])
         self.f_val = np.array([])
         self.g_val = np.array([])
