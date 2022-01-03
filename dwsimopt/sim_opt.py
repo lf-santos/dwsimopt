@@ -18,6 +18,7 @@ class SimulationOptimization():
         :ivar path2sim: Absolute path to a DWSIM simulation (.dwxmz)
         :ivar path2dwsim: Absolute path to the DWSIM installation
         :ivar savepath: Absolute path to save the DWSIM simulation (.dwxmz)
+        :ivar verbose: Boolean that controls display messages during simulation calculation
         :ivar x_val: Last simulated degrees of freedom values
         :ivar f_val: Last simulated objective functions values
         :ivar g_val: Last simulated constraints values
@@ -30,7 +31,7 @@ class SimulationOptimization():
     """
     def __init__(self, path2sim, dof=np.array([], dtype=object), 
                 path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\", 
-                savepath = ""):  # pragma: no cover
+                savepath = "", verbose = True):  # pragma: no cover
         self.path2sim = path2sim
         self.path2dwsim = path2dwsim
         if savepath=="":
@@ -46,6 +47,7 @@ class SimulationOptimization():
         self.n_g = self.g.size
         self.dof = dof
         self.n_dof = self.dof.size
+        self.verbose = verbose
     
     def add_refs(self):
         """This method add reference in the proggraming environment to the DWSIM dlls, so they can be imported.
@@ -151,7 +153,8 @@ class SimulationOptimization():
         Args:
             x (numpy.array): Array of degrees of freedom values to be simulated
         """
-        print(f"opt_functions calculation at x = {x}")
+        if self.verbose:
+            print(f"opt_functions calculation at x = {x}")
         if x.size != self.n_dof:
             print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
         for i in range(self.n_dof):
@@ -194,7 +197,8 @@ class SimulationOptimization():
                     self.g_val[i] = gg[0]()
             else:
                 self.g_val = np.array([self.g[0]()])
-        print(f"f = {self.f_val}, g = {self.g_val} at x = {x}")
+        if self.verbose:
+            print(f"f = {self.f_val}, g = {self.g_val} at x = {x}")
         return np.append(self.f_val, self.g_val)
 
     def fpen_barrier(self,x,pen=1000):
