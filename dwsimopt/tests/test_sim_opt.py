@@ -35,10 +35,7 @@ class TestSimOpt(unittest.TestCase):
             path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
 
         # Loading DWSIM simulation into Python (Simulation object)
-        try:
-            ROOT_DIR = os.path.dirname(__file__) # This is your Project Root
-        except:
-            ROOT_DIR = os.path.abspath(os.getcwd())
+        ROOT_DIR = os.path.abspath(os.getcwd())
         if ROOT_DIR.find('tests')>-1:
             ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
         print(ROOT_DIR)

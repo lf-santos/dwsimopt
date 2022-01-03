@@ -12,4 +12,5 @@ recursive-include docs Makefile
 include *.yaml
 include tox.ini
 recursive-include docs *.txt
-recursive-include dwsimopt *.dll
+recursive-include dwsimopt *.dll        
+recursive-include dwsimopt/tests *.dwxmz
