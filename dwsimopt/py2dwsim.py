@@ -213,22 +213,28 @@ def _fromDwsim(desc, sim):
     name = obj.GetType().FullName.split('.')
     # print(name)
 
+    # PHASE?
+    if desc[2]=='Overall':
+        _phases=0
+    elif desc[2]=='Liquid':
+        _phases=1
+    elif desc[2]=='Vapor':
+        _phases=2
+
     # Dealing with material stream DoF:
     if name[-1] == 'MaterialStream':
         if desc[1] == 'MassFlow':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetMassFlow()) 
+            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.Phases[_phases].Properties.massflow) 
         elif desc[1] == 'Temperature':
             f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetTemperature())
         elif desc[1] == 'Pressure':
             f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetPressure()) 
         elif desc[1] == 'MolarFlow':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetMolarFlow()) 
-        # elif desc[1] == 'CompoundMassFlow':
-        #     f = lambda x: obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-        # elif desc[1] == 'CompoundMolarFlow':
-        #     f = lambda x: obj.SetOverallCompoundMolarFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-        # elif desc[1] == 'CompoundMolarComposition':
-        #     f = lambda x: obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
+            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.Phases[_phases].Properties.molarflow) 
+        elif desc[1] == 'MassFraction':
+            f = lambda: obj.Phases[_phases].Properties.massfraction
+        elif desc[1] == 'MolarFraction':
+            f = lambda: obj.Phases[_phases].Properties.molarfraction
         else:
             print(f"No property of {desc[0]} named {desc[1]}")
             f = None
