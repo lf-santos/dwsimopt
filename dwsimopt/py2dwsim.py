@@ -169,7 +169,7 @@ def _toDwsim(desc, sim):
     # Dealing with energy stram DoF:
     elif name[-1] == 'EnergyStream':
         if desc[1] == 'EnergyFlow':
-            f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.EnergyFlow )
+            f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='EnergyFlow' )
         else:
             print(f"No property of {desc[0]} named {desc[1]}")
             f = None
@@ -178,11 +178,21 @@ def _toDwsim(desc, sim):
         # calcMode = obj.CalcMode
         if desc[1] == 'OutletPressure':
             if name[-1]=='Compressor':
-                f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.POut )
+                # print("hey, pay attention")
+                # print(f"x={obj.POut}, type={type(obj.POut)}")
+                # print(f"object = {obj}, type={type(obj)}")
+                # def _setP_comp(x,obj):
+                #     obj.POut = x
+                # f = lambda x: _setP_comp(x, obj)
+                f = lambda x: _set_property(x, obj, attr='POut')
+                # f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj.POut)
+                # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.POut )
             else:
-                f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletPressure )
+                f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='OutletPressure')
+                # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletPressure )
         elif desc[1] == 'OutletTemperature':
-            f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletTemperature )
+                f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='OutletTemperature')
+            # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletTemperature )
         else:
             f=None
     else:
@@ -268,11 +278,12 @@ def _fromDwsim(desc, sim):
 
     return f
 
-def _set_property(x, obj):
+def _set_property(x, obj, attr=''):
     """Helper setter function. obj <- x
 
     Args:
         x (Float): value to be set to obj property
-        obj (Object property): object property to recieve x value
+        obj (Object property): object property to recieve `x` value
+        attr (String): attribute of `obj` that recieves `x`
     """
-    obj = x
+    setattr(obj, attr, x)
