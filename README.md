@@ -44,17 +44,16 @@ Make sure you have all the required packages and software. Navegate throught the
 
 # Citing us
 
-If you use dwsimopt, plese cite the following paper: <a href="https://doi.org/10.1016/j.ces.2021.116699" title="simulation optimization paper">L. F. Santos, C. B. B. Costa, J. A. Caballero, M. A. Ravagnani, Kriging-assisted constrained optimization of single-mixed refrigerant natural gas liquefaction process, Chemical Engineering Science (2021).
-116699doi:https://doi.org/10.1016/j.ces.2021.116699.</a>
+If you use dwsimopt, plese cite the following paper: <a href="https://doi.org/10.1016/j.apenergy.2022.118537" title="simulation optimization paper">L. F. Santos, C. B. B. Costa, J. A. Caballero, M. A. S. S. Ravagnani, Framework for embedding black-box simulation into mathematical programming via kriging surrogate model applied to natural gas liquefaction process optimization, Applied Energy, 310, 118537 (2022).</a>
 
 <pre>
-@article{santos2021kriging,
-  title={Kriging-assisted constrained optimization of single-mixed refrigerant natural gas liquefaction process},
-  author={Santos, Lucas F and Costa, Caliane BB and Caballero, Jos{\'e} A and Ravagnani, Mauro ASS},
-  journal={Chemical Engineering Science},
-  volume={241},
-  pages={116699},
-  year={2021},
-  publisher={Elsevier}
-}
+@article{Santos2022,
+title = {Framework for embedding black-box simulation into mathematical programming via kriging surrogate model applied to natural gas liquefaction process optimization},
+author = {Lucas F. Santos and Caliane B.B. Costa and José A. Caballero and Mauro A.S.S. Ravagnani},
+journal = {Applied Energy},
+volume = {310},
+pages = {118537},
+year = {2022},
+issn = {0306-2619},
+doi = {https://doi.org/10.1016/j.apenergy.2022.118537},
 </pre>
