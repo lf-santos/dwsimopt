@@ -165,6 +165,13 @@ class SimulationOptimization():
         time.sleep(0.05)
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.05)
+        error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        time.sleep(0.05)
+        
+        if bool(error):
+            error = self.interface.CalculateFlowsheet2(self.flowsheet)
+            time.sleep(0.05)
+
         if bool(error):
             print(f"{error[0]} at x = {x}")
 
@@ -189,12 +196,16 @@ class SimulationOptimization():
             if self.n_f>1:
                 for i, ff in enumerate(self.f):
                     self.f_val[i] = ff[0]()
+            elif self.n_f==0:
+                self.f_val = None
             else:
                 self.f_val = np.array([self.f[0]()])
 
             if self.n_g>1:
                 for i, gg in enumerate(self.g):
                     self.g_val[i] = gg[0]()
+            elif self.n_g==0:
+                self.f_val = None
             else:
                 self.g_val = np.array([self.g[0]()])
         if self.verbose:

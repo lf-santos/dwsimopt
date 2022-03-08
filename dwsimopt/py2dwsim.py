@@ -108,19 +108,23 @@ def assign_pddx(f, desc, sim, element="dof"):
         # Has this element already added? Disregard repetitive element
         if elem == np.array([]):
             elem_add( f, desc )
+            print("hi, added 1")
         else:
             addQuery = True
             if elem_n == 1:
                 rows = elem[1:len(desc)]
                 if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
                     addQuery = False
+                    print("hi, not added 1")
             else:
                 for row in elem:
                     rows = row[1:len(desc)]
                     if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
                         addQuery = False
+                        print("hi, not added 2")
             if addQuery:
                 elem_add( f, desc )
+                print("hi, added +1")
 
 def _toDwsim(desc, sim):
     """Helper function that define a setter function to the dwsim object described in `desc` in `sim`.
@@ -219,6 +223,12 @@ def _fromDwsim(desc, sim):
     except:
         print(f"there is no {desc[0]} in {sim}")
         return
+    # except None:
+    #     obj = sim.flowsheet.GetSpreadsheetObject()
+    #     print(obj)
+    # except:
+    #     print(f"there is no {desc[0]} in {sim}")
+    #     return
 
     name = obj.GetType().FullName.split('.')
     # print(name)
@@ -271,9 +281,15 @@ def _fromDwsim(desc, sim):
             # def f(x):
             #     return obj.OutputVariables[desc[2]]
             f = lambda: obj.OutputVariables[desc[2]]
+        elif desc[1] == 'InputVariables':
+            # def f(x):
+            #     return obj.OutputVariables[desc[2]]
+            f = lambda: obj.OutputVariables[desc[2]]
         else:
+            print("There is no f{desc[1]} or f{desc[2]} in f{desc[0]}")
             f=None
     else:
+        print("There is no f{desc[1]} or f{desc[2]} in f{desc[0]}")
         f = None
 
     return f
