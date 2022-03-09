@@ -159,18 +159,56 @@ class SimulationOptimization():
             print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
         for i in range(self.n_dof):
             self.dof[i][0](x[i])
+        # first calculation
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.05)
-        error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        time.sleep(0.05)
-        error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        time.sleep(0.05)
-        error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        time.sleep(0.05)
-        
+        res_old = np.array([self.f[0]()])
+        for i in range(self.n_g):
+            res_old = np.append(res_old, np.asarray(self.g[i][0]()))
+
+        # second calculation
+        for conv_ite in range(3):
+            error = self.interface.CalculateFlowsheet2(self.flowsheet)
+            time.sleep(0.05)
+            res_new = np.array([self.f[0]()])
+            for i in range(self.n_g):
+                res_new = np.append(res_new, self.g[i][0]())
+            if np.linalg.norm(res_new-res_old) > 1e-6:
+                res_old = res_new
+            else:
+                if self.verbose:
+                    print(f"               Simulation converged in {conv_ite+2} iterations")
+                return
+
+        # # third calculation
+        # error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        # time.sleep(0.05)
+        # res_new[0] = self.f[0]()
+        # for i in range(self.n_g):
+        #     res_new[i+1] = self.g[i][0]()
+        # if np.linalg.norm(res_new-res_old) > 1e-6:
+        #     res_old = res_new
+        # else:
+        #     # print("               Simulation converged in 3 iterations")
+        #     return
+        # # fourth calculation
+        # error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        # time.sleep(0.05)
+        # res_new[0] = self.f[0]()
+        # for i in range(self.n_g):
+        #     res_new[i+1] = self.g[i][0]()
+        # if np.linalg.norm(res_new-res_old) > 1e-6:
+        #     res_old = res_new
+        # else:
+        #     # print("               Simulation converged in 4 iterations")
+        #     return
+
+        # fifth calculation, in case of error
         if bool(error):
             error = self.interface.CalculateFlowsheet2(self.flowsheet)
             time.sleep(0.05)
+            if self.verbose:
+                print("               Simulation converged in 5 iterations or failed to converge...")
 
         if bool(error):
             print(f"{error[0]} at x = {x}")
