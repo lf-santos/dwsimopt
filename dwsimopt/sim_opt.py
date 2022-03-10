@@ -178,40 +178,19 @@ class SimulationOptimization():
             else:
                 if self.verbose:
                     print(f"               Simulation converged in {conv_ite+2} iterations")
+                if len(error)>0:
+                    print(f"{error} at x = {x}")
                 return
 
-        # # third calculation
-        # error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        # time.sleep(0.05)
-        # res_new[0] = self.f[0]()
-        # for i in range(self.n_g):
-        #     res_new[i+1] = self.g[i][0]()
-        # if np.linalg.norm(res_new-res_old) > 1e-6:
-        #     res_old = res_new
-        # else:
-        #     # print("               Simulation converged in 3 iterations")
-        #     return
-        # # fourth calculation
-        # error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        # time.sleep(0.05)
-        # res_new[0] = self.f[0]()
-        # for i in range(self.n_g):
-        #     res_new[i+1] = self.g[i][0]()
-        # if np.linalg.norm(res_new-res_old) > 1e-6:
-        #     res_old = res_new
-        # else:
-        #     # print("               Simulation converged in 4 iterations")
-        #     return
-
         # fifth calculation, in case of error
-        if bool(error):
+        if len(error)>0:
             error = self.interface.CalculateFlowsheet2(self.flowsheet)
             time.sleep(0.05)
             if self.verbose:
                 print("               Simulation converged in 5 iterations or failed to converge...")
 
-        if bool(error):
-            print(f"{error[0]} at x = {x}")
+        if len(error)>0:
+            print(f"{error} at x = {x}")
 
     def calculate_optProblem(self, x):
         """Assign degrees of freedom values to the simulation if norm > 1e-10. Converge the simulation and return an array with objectives and constraints values.
