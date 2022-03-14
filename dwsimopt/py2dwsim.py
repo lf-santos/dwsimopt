@@ -73,6 +73,10 @@ def create_pddx(desc, sim, element="dof", assign=True):
     if assign==True:
         assign_pddx(ff, desc, sim, element)
     else:
+        if element == "dof":
+            print(f"Successfully created a setter pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
+        else:
+            print(f"Successfully created a getter pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
         return ff
 
 def assign_pddx(f, desc, sim, element="dof"):
@@ -108,23 +112,23 @@ def assign_pddx(f, desc, sim, element="dof"):
         # Has this element already added? Disregard repetitive element
         if elem == np.array([]):
             elem_add( f, desc )
-            print("hi, added 1")
+            print(f"Successfully added to {sim} a {element} pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
         else:
             addQuery = True
             if elem_n == 1:
                 rows = elem[1:len(desc)]
                 if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
                     addQuery = False
-                    print("hi, not added 1")
+                    # print("hi, not added 1")
             else:
                 for row in elem:
                     rows = row[1:len(desc)]
                     if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
                         addQuery = False
-                        print("hi, not added 2")
+                        # print("hi, not added 2")
             if addQuery:
                 elem_add( f, desc )
-                print("hi, added +1")
+            print(f"Successfully added to {sim} a {element} pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
 
 def _toDwsim(desc, sim):
     """Helper function that define a setter function to the dwsim object described in `desc` in `sim`.
