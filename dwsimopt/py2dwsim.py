@@ -192,7 +192,7 @@ def _toDwsim(desc, sim):
                 # def _setP_comp(x,obj):
                 #     obj.POut = x
                 # f = lambda x: _setP_comp(x, obj)
-                f = lambda x: _set_property(x, obj, attr='POut')
+                f = lambda x: _set_property(Converter.ConvertToSI(desc[3], x), obj, attr='POut')
                 # f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj.POut)
                 # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.POut )
             else:
