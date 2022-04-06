@@ -161,23 +161,30 @@ class SimulationOptimization():
             self.dof[i][0](x[i])
         # first calculation
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        time.sleep(0.05)
+        time.sleep(0.1)
+        # second calculation
+        error = self.interface.CalculateFlowsheet2(self.flowsheet)
+        time.sleep(0.1)
         res_old = np.array([self.f[0]()])
         for i in range(self.n_g):
             res_old = np.append(res_old, np.asarray(self.g[i][0]()))
 
-        # second calculation
+        # third+ calculation
         for conv_ite in range(3):
             error = self.interface.CalculateFlowsheet2(self.flowsheet)
-            time.sleep(0.05)
+            time.sleep(0.1)
             res_new = np.array([self.f[0]()])
             for i in range(self.n_g):
                 res_new = np.append(res_new, self.g[i][0]())
-            if np.linalg.norm(res_new-res_old) > 1e-6:
+            try:
+                variation = np.linalg.norm(res_new-res_old)
+            except:
+                variation = 1
+            if variation > 1e-6:
                 res_old = res_new
             else:
                 if self.verbose:
-                    print(f"               Simulation converged in {conv_ite+2} iterations")
+                    print(f"               Simulation converged in {conv_ite+3} iterations")
                 if len(error)>0:
                     print(f"{error} at x = {x}")
                 return
