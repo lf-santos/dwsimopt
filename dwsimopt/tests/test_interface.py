@@ -28,11 +28,11 @@ class TestDWSIM_Interface(unittest.TestCase):
         """SimulationOptimziation class instantiation test.
         """
         # Getting DWSIM path from system path
+        path2dwsim = []
         for k,v in enumerate(os.environ['path'].split(';')):
             if v.find('\DWSIM')>-1:
                 path2dwsim = os.path.join(v, '')
-        if path2dwsim == None:
-            # path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
+        if path2dwsim == []:
             path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
             if path2dwsim[-1] not in '\/':
                 path2dwsim += r'/'
@@ -42,7 +42,7 @@ class TestDWSIM_Interface(unittest.TestCase):
         if ROOT_DIR.find('tests')>-1:
             ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
         print(ROOT_DIR)
-        self.sim1 = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
+        self.sim1 = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim_heater.dwxmz"), 
                             path2dwsim = path2dwsim)
         
         self.assertIsNotNone(self.sim1)
@@ -79,6 +79,50 @@ class TestDWSIM_Interface(unittest.TestCase):
             interf = Automation2()
 
         #Connect simulation in sim.path2sim
+        sim = interf.CreateFlowsheet()
+
+        # add water
+        water = sim.AvailableCompounds["Water"]
+        sim.SelectedCompounds.Add(water.Name, water)
+
+        # create and connect objects
+        from DWSIM.Interfaces.Enums.GraphicObjects import ObjectType
+        from DWSIM.Thermodynamics import Streams, PropertyPackages
+        from DWSIM.UnitOperations import UnitOperations
+        from DWSIM.GlobalSettings import Settings
+
+        m1 = sim.AddObject(ObjectType.MaterialStream, 50, 50, "inlet")
+        m2 = sim.AddObject(ObjectType.MaterialStream, 150, 50, "outlet")
+        e1 = sim.AddObject(ObjectType.EnergyStream, 100, 50, "power")
+        h1 = sim.AddObject(ObjectType.Heater, 100, 50, "heater")
+
+        sim.ConnectObjects(m1.GraphicObject, h1.GraphicObject, -1, -1)
+        sim.ConnectObjects(h1.GraphicObject, m2.GraphicObject, -1, -1)
+        sim.ConnectObjects(e1.GraphicObject, h1.GraphicObject, -1, -1)
+
+        sim.AutoLayout()
+
+        # steam tables property package
+        stables = PropertyPackages.SteamTablesPropertyPackage()
+        sim.AddPropertyPackage(stables)
+
+        # set inlet stream temperature
+        # default properties: T = 298.15 K, P = 101325 Pa, Mass Flow = 1 kg/s
+        m1.SetTemperature(300.0) # K
+        m1.SetMassFlow(100.0) # kg/s
+
+        # set heater outlet temperature
+        h1.CalcMode = UnitOperations.Heater.CalculationMode.OutletTemperature
+        h1.OutletTemperature = 400 # K
+
+        # request a calculation
+        Settings.SolverMode = 0
+        errors = interf.CalculateFlowsheet2(sim)
+        print(f"Heater Heat Load: {h1.DeltaQ} kW")
+
+        # save file
+        interf.SaveFlowsheet(sim, self.sim1.path2sim, True)
+
         self.assertIsNone(self.sim1.connect(interf))
         try:
             self.sim2.connect(interf)

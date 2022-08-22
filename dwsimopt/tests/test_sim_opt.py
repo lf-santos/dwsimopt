@@ -28,10 +28,11 @@ class TestSimOpt(unittest.TestCase):
         """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
         """
         # Getting DWSIM path from system path
+        path2dwsim = []
         for k,v in enumerate(os.environ['path'].split(';')):
             if v.find('\DWSIM')>-1:
                 path2dwsim = os.path.join(v, '')
-        if path2dwsim == None:
+        if path2dwsim == []:
             path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
             if path2dwsim[-1] not in '\/':
                 path2dwsim += r'/'
