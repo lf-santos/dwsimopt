@@ -32,7 +32,10 @@ class TestDWSIM_Interface(unittest.TestCase):
             if v.find('\DWSIM')>-1:
                 path2dwsim = os.path.join(v, '')
         if path2dwsim == None:
-            path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
+            # path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
+            path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
+            if path2dwsim[-1] not in '\/':
+                path2dwsim += r'/'
 
         # Loading DWSIM simulation into Python (Simulation object)
         ROOT_DIR = os.path.abspath(os.getcwd())

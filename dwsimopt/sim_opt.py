@@ -146,7 +146,7 @@ class SimulationOptimization():
         self.n_g += 1
         # self.g = np.append(self.g, g_func)
         # self.n_g = self.g.size
-
+    
     def converge_simulation(self, x):
         """Converge the simulation with degrees of freedom values of ``x``
 

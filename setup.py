@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf8", errors='ignore') as fh:
     long_description = fh.read()
 
 setup(name='dwsimopt',
-      version='0.1.2',
+      version='0.1.3',
       description='DWSIM automation with python for chemical process simulation optimization',
       url='http://https://github.com/lf-santos/dwsimopt',
       author='Lucas F. Santos',
@@ -31,4 +31,12 @@ setup(name='dwsimopt',
     #   cmdclass=CMD_CLASSES,
       long_description=long_description,
       long_description_content_type="text/markdown",
+      classifiers=[
+              'Development Status :: 3 - Alpha',
+              'License :: OSI Approved :: MIT License',
+              'Programming Language :: Python :: 3 :: Only',
+              'Programming Language :: Python :: 3.8',
+              'Topic :: Scientific/Engineering',
+              'Topic :: Scientific/Engineering :: Mathematics'
+          ],
 )

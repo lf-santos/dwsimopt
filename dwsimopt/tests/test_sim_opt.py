@@ -32,7 +32,9 @@ class TestSimOpt(unittest.TestCase):
             if v.find('\DWSIM')>-1:
                 path2dwsim = os.path.join(v, '')
         if path2dwsim == None:
-            path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\"
+            path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
+            if path2dwsim[-1] not in '\/':
+                path2dwsim += r'/'
 
         # Loading DWSIM simulation into Python (Simulation object)
         ROOT_DIR = os.path.abspath(os.getcwd())
@@ -75,13 +77,11 @@ class TestSimOpt(unittest.TestCase):
         # adding objective function (f_i):
         sim_smr.add_fobj(lambda : sim_smr.flowsheet.GetFlowsheetSimulationObject("Sum_W").EnergyFlow)
         # adding constraints (g_i <= 0):
-        sim_smr.add_constraint(np.array([
-            lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita'],
-            lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita'],
-            lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction, # no phase separation in the cycle
-            lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction, # no phase separation in the cycle
-            #   lambda : 10*(1 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-07").Phases[1].Properties.massfraction), # phase separation before MSHE
-        ]))
+        sim_smr.add_constraint(np.array([lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita']]))
+        sim_smr.add_constraint(np.array([lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita']]))
+        sim_smr.add_constraint(np.array([lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction]))
+        sim_smr.add_constraint(np.array([lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction]))
+        
         # Initial simulation optimization setup
         # Initial guess of optimization
         x0 = np.array( [0.25/3600, 0.70/3600, 1.0/3600, 1.10/3600, 1.80/3600, 2.50e5, 50.00e5, -60+273.15] )
