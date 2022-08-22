@@ -26,7 +26,7 @@ in which the objective function ![equation](https://latex.codecogs.com/svg.latex
 - scipy
 - scikit-opt
 
-It is recommendable to start from a fresh environment and let the `dwsimopt` install the dependencies, see <a href=#Istallation>Installation</a> section. DWSIM must be downloaded and installed manually.
+It is recommendable to start from a fresh environment and let the `dwsimopt` install the dependencies, see <a href=#installation>Installation</a> section. DWSIM must be downloaded and installed manually.
 
 ## Installation
 
