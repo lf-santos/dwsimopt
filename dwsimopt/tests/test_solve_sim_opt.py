@@ -1,4 +1,4 @@
-"""Module that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet
+"""Module that contains the tests for the OptimiSim utilization for calculating the DWSIM flowsheet
 
 .. module:: tests_sim_opt.py
    :synopsis: Tests for the DWSIM flowsheet calculation via Python interface
@@ -14,48 +14,26 @@ import os
 import numpy as np
 import unittest
 
-from dwsimopt.sim_opt import SimulationOptimization
-from dwsimopt.utils import PATH2DWSIMOPT
+from dwsimopt.solve_sim_opt import OptimiSim
 
-class TestSimOpt(unittest.TestCase):
-    """Class that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet.
+class TestOptimiSim(unittest.TestCase):
+    """Class that contains the tests for the OptimiSim utilization for calculating the DWSIM flowsheet.
 
     Args:
         unittest (): Standard python module for unit testting code.
     """
 
-    def test_SimOpt_reproductibility(self):
-        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
+    def test_OptimiSim_reproductibility(self):
+        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility using the OptimiSim.
         """
-        # Getting DWSIM path from system path
-        path2dwsim = []
-        for k,v in enumerate(os.environ['path'].split(';')):
-            if v.find('\DWSIM')>-1:
-                path2dwsim = os.path.join(v, '')
-        if path2dwsim == []:
-            path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
-            if path2dwsim[-1] not in '\/':
-                path2dwsim += r'/'
 
         # Loading DWSIM simulation into Python (Simulation object)
         ROOT_DIR = os.path.abspath(os.getcwd())
         if ROOT_DIR.find('tests')>-1:
             ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
         print(ROOT_DIR)
-        sim_smr = SimulationOptimization(path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
-                            path2dwsim = path2dwsim)
+        sim_smr = OptimiSim(path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"))
         sim_smr.savepath = os.getcwd() + "\\dwsimopt\\tests\\test_sim2.dwxmz"
-        sim_smr.add_refs()
-
-        # Instanciate automation manager object
-        from DWSIM.Automation import Automation2
-
-        if ('interf' not in globals()):    # create automation manager
-            global interf
-            interf = Automation2()
-
-        # Connect simulation in sim.path2sim
-        sim_smr.connect(interf)
 
         # Add dof
         sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(7,x))
@@ -89,6 +67,24 @@ class TestSimOpt(unittest.TestCase):
         np.testing.assert_array_almost_equal(f, f3)
 
         self.sim = sim_smr
+
+    def test_OptimiSim_PSO(self):
+        """Test for the DWSIM flowsheet optimization using Particle Swarm Optimization from OptimiSim.
+        """
+
+        try: self.sim
+        except:
+            self.test_OptimiSim_reproductibility()
+            sim_smr = self.sim
+        
+        results_pso = []
+        try:
+            results_pso = sim_smr.PSO(sim_smr.x_val, 0.75*sim_smr.x_val, 1.25*sim_smr.x_val, pop=3, max_ite=2, plotting=False)
+        except:
+            pass
+        
+        print(results_pso)
+        self.assertIsNot(results_pso, [])
 
 if __name__ == '__main__':
     unittest.main()

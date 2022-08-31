@@ -19,7 +19,7 @@ in which the objective function ![equation](https://latex.codecogs.com/svg.latex
 
 ## Requirements
 - Python <= 3.9 (python 3.8 recommended -- using python 3.9 requires installing dwsimopt from ``setup.py``)
-- DWSIM v7 (open-source chemical process simulation. <a href="https://dwsim.inforside.com.br/new/">Download here</a>)
+- DWSIM v7+ (open-source chemical process simulation. <a href="https://dwsim.org/index.php/download/">Download here</a>)
 - pythonnet == 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\pythonnet_wheel``)
 - pywin32
 - numpy
@@ -39,7 +39,7 @@ cd dwsimopt
 python setup.py install
 </pre>
 
-Make sure you have all the required packages and software. Navigate through the jupyter notebook examples. Use the `SimulationOptimization` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsim data exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended).
+Make sure you have all the required packages and software. Navigate through the jupyter notebook examples. Use the `OptimiSim` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsim data exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended) that you can find methods in the `OptimiSim` class (*e.g.* `GA`, `PSO`, `DE`)
 
 
 ## Citing us

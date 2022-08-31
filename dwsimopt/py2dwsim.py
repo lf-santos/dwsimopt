@@ -18,7 +18,7 @@ def create_pddx(desc, sim, element="dof", assign=True):
 
     Args:
         desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit']
-        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization
+        sim (dwsimopt.OptimSim): object of dwsimopt.SimulationOpimization or that inherits from it
         element (str, optional): optimization problem element: 'dof', 'fobj', or 'constraint'. Defaults to "dof".
         assign (bool, optional): if True: assign the python-dwsim data exchange channel to the corresponding `element` in `sim`, else: return lambda function. Defaults to True.
 

@@ -1,3 +1,11 @@
+dwsimopt.solve\_sim\_opt.py
+----------------------------
+
+.. automodule:: dwsimopt.solve_sim_opt
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 dwsimopt.sim\_opt.py
 --------------------------
 
