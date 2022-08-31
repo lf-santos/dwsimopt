@@ -28,10 +28,13 @@ class SimulationOptimization():
         :ivar n_dof: Number of degrees of freedom (size of optimization problem)
         :ivar n_f: Number of objective functions (still unsupported for n_f>1, *i.e.* multi-objective problem)
         :ivar n_g: Number of constraints
+        :ivar force_convergence: Boolean that controls if multiple simulation runs is allowed. It may be usefull for simulations that include python scripts. It is not recomended for those that take a long time to converge.
+        :ivar init_dwsim: Boolean that controls if DWSIM is initialized automatically with `SimulationOptimization` class
     """
     def __init__(self, path2sim, dof=np.array([], dtype=object), 
                 path2dwsim = "C:\\Users\\lfsfr\\AppData\\Local\\DWSIM7\\", 
-                savepath = "", verbose = True):  # pragma: no cover
+                savepath = "", verbose = True, force_convergence=True,
+                init_dwsim=True):  # pragma: no cover
         self.path2sim = path2sim
         self.path2dwsim = path2dwsim
         if savepath=="":
@@ -48,6 +51,23 @@ class SimulationOptimization():
         self.dof = dof
         self.n_dof = self.dof.size
         self.verbose = verbose
+        self.force_convergence = force_convergence
+        # if init_dwsim == True:
+        #     if path2dwsim == []:
+        #         for k,v in enumerate(os.environ['path'].split(';')):
+        #             if v.find('\DWSIM')>-1:
+        #                 path2dwsim = os.path.join(v, '')
+        #         if path2dwsim == []:
+        #             path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
+        #             if path2dwsim[-1] not in '\/':
+        #                 path2dwsim += r'/'
+        #     self.path2dwsim = path2dwsim
+        # self.add_refs()
+        # from DWSIM.Automation import Automation2
+        # if ('interf' not in globals()):    # create automation manager
+        #     global interf
+        #     interf = Automation2()
+
     
     def add_refs(self):
         """This method add reference in the proggraming environment to the DWSIM dlls, so they can be imported.
@@ -56,10 +76,6 @@ class SimulationOptimization():
         pythoncom.CoInitialize()
 
         import clr
-
-        # from os import system as System
-        # from System.IO import Directory, Path, File
-        # from System import String, Environment
         
         clr.AddReference(self.path2dwsim + "CapeOpen.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Automation.dll")
@@ -69,12 +85,6 @@ class SimulationOptimization():
         clr.AddReference(self.path2dwsim + "DWSIM.Thermodynamics.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.UnitOperations.dll")
         clr.AddReference(self.path2dwsim + "System.Buffers.dll")
-        try:
-            clr.AddReference(self.path2dwsim + "System.Buffers2.dll")
-        except Exception as e:
-            pass
-            # print(Exception)
-        # print("More refs")
         clr.AddReference(self.path2dwsim + "DWSIM.Inspector.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.MathOps.dll")
         clr.AddReference(self.path2dwsim + "TcpComm.dll")
@@ -82,8 +92,6 @@ class SimulationOptimization():
         clr.AddReference(self.path2dwsim + "System.Buffers.dll")
         clr.AddReference(self.path2dwsim + "SkiaSharp.dll")
         clr.AddReference(self.path2dwsim + "OxyPlot")
-        # clr.AddReference(self.path2dwsim + "OxyPlot.WindowsForms")
-        # clr.AddReference(self.path2dwsim + "DWSIM.ExtensionMethods.Eto")
         
         print("added refs")
 
@@ -130,8 +138,6 @@ class SimulationOptimization():
         else:
             self.f = np.block( [ [self.f],  [np.append( func, description)] ] )
         self.n_f += 1
-        # self.f = np.append(self.f, func)
-        # self.n_f = self.f.size
 
     def add_constraint(self, g_func, description=[None,None,None,None]):
         """Append a new constraint to the SimulationOptimization object
@@ -144,8 +150,6 @@ class SimulationOptimization():
         else:
             self.g = np.block( [ [self.g],  [np.append( g_func, description)] ] )
         self.n_g += 1
-        # self.g = np.append(self.g, g_func)
-        # self.n_g = self.g.size
     
     def converge_simulation(self, x):
         """Converge the simulation with degrees of freedom values of ``x``
@@ -163,31 +167,32 @@ class SimulationOptimization():
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.1)
         # second calculation
-        error = self.interface.CalculateFlowsheet2(self.flowsheet)
-        time.sleep(0.1)
-        res_old = np.array([self.f[0]()])
-        for i in range(self.n_g):
-            res_old = np.append(res_old, np.asarray(self.g[i][0]()))
-
-        # third+ calculation
-        for conv_ite in range(3):
+        if self.force_convergence:
             error = self.interface.CalculateFlowsheet2(self.flowsheet)
             time.sleep(0.1)
-            res_new = np.array([self.f[0]()])
+            res_old = np.array([self.f[0]()])
             for i in range(self.n_g):
-                res_new = np.append(res_new, self.g[i][0]())
-            try:
-                variation = np.linalg.norm(res_new-res_old)
-            except:
-                variation = 1
-            if variation > 1e-6:
-                res_old = res_new
-            else:
-                if self.verbose:
-                    print(f"               Simulation converged in {conv_ite+3} iterations")
-                if len(error)>0:
-                    print(f"{error} at x = {x}")
-                return
+                res_old = np.append(res_old, np.asarray(self.g[i][0]()))
+
+            # third+ calculation
+            for conv_ite in range(3):
+                error = self.interface.CalculateFlowsheet2(self.flowsheet)
+                time.sleep(0.1)
+                res_new = np.array([self.f[0]()])
+                for i in range(self.n_g):
+                    res_new = np.append(res_new, self.g[i][0]())
+                try:
+                    variation = np.linalg.norm(res_new-res_old)
+                except:
+                    variation = 1
+                if variation > 1e-6:
+                    res_old = res_new
+                else:
+                    if self.verbose:
+                        print(f"               Simulation converged in {conv_ite+3} iterations")
+                    if len(error)>0:
+                        print(f"{error} at x = {x}")
+                    return
 
         # fifth calculation, in case of error
         if len(error)>0:
@@ -289,3 +294,87 @@ class SimulationOptimization():
         for i in range(self.n_g):
             fpen += pen*exp(max(0, self.g_val[i]))
         return fpen
+
+    def PSO(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, printing=True):
+        # Global optimization with PSO
+        from sko.PSO import PSO
+
+        if pen_method=='barrier':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='quad':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='exp':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        else:
+            raise Exception(f"Penalization method {pen_method} not found.")
+
+        if pop==[]:
+            pop = 2*self.n_dof
+        if max_ite==[]:
+            max_ite = 5*self.n_dof
+        
+        result_pso = PSO(func= f_pen, n_dim=self.n_dof, pop=pop, max_iter=max_ite, lb=xlb, ub=xub, verbose=verbose)
+        result_pso.record_mode = True
+        if self.n_f > 1:
+            raise Exception("Multi-objective optimization not supported (yet)")
+        elif self.n_f < 1:
+            raise Exception("Invalid number of objective functions")
+        else:
+            print("Starting global optimization")
+            result_pso.run()
+
+        if printing==True:
+            import matplotlib.pyplot as plt
+
+            print(self.f[0](result_pso.gbest_x))
+            for i in self.n_g:
+                print(self.g[i][0](result_pso.gbest_x))
+            print(result_pso.gbest_x)
+
+            plt.plot(result_pso.gbest_y_hist)
+            plt.show()
+
+        return result_pso
+
+    # def GA(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True):
+    #     # Global optimization with PSO
+    #     from sko.GA import GA
+
+    #     if pen_method=='barrier':
+    #         f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+    #     elif pen_method=='quad':
+    #         f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+    #     elif pen_method=='exp':
+    #         f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+    #     else:
+    #         raise Exception(f"Penalization method {pen_method} not found.")
+
+    #     if pop==[]:
+    #         pop = 2*self.n_dof
+    #     if max_ite==[]:
+    #         max_ite = 5*self.n_dof
+    #     if prob_mut==[]:
+    #         prob_mut = 1
+        
+    #     result_GA = GA(func= f_pen, n_dim=self.n_dof, pop=pop, max_iter=max_ite, prob_mut=prob_mut, lb=xlb, ub=xub, verbose=verbose)
+    #     result_GA.record_mode = True
+    #     if self.n_f > 1:
+    #         raise Exception("Multi-objective optimization not supported (yet)")
+    #     elif self.n_f < 1:
+    #         raise Exception("Invalid number of objective functions")
+    #     else:
+    #         print("Starting global optimization")
+    #         result_GA.run()
+
+    #     if printing==True:
+    #         import matplotlib.pyplot as plt
+
+    #         print(self.f[0](result_GA.gbest_x))
+    #         for i in self.n_g:
+    #             print(self.g[i][0](result_GA.gbest_x))
+    #         print(result_GA.gbest_x)
+
+    #         plt.plot(result_GA.gbest_y_hist)
+    #         plt.show()
+
+    #     return result_GA

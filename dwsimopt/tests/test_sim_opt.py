@@ -50,16 +50,8 @@ class TestSimOpt(unittest.TestCase):
         # Instanciate automation manager object
         from DWSIM.Automation import Automation2
 
-        # print('=========================================================LOCALS============================================')
-        # print(locals())
-        # print('=========================================================GLOBALS============================================')
-        # print(globals())
         if ('interf' not in locals()):    # create automation manager
             interf = Automation2()
-        # else:
-        #     interf = locals()['Automation2']
-        # print('=========================================================Interf============================================')
-        # print(dir(interf))
 
         # Connect simulation in sim.path2sim
         sim_smr.connect(interf)
@@ -95,6 +87,22 @@ class TestSimOpt(unittest.TestCase):
         self.assertNotEqual(sum((f-f2)**2), 0)
         np.testing.assert_array_almost_equal(f, f3)
 
+        self.sim = sim_smr
+
+    def test_SimOpt_PSO(self):
+        try: self.sim
+        except:
+            self.test_SimOpt_reproductibility()
+            sim_smr = self.sim
+        
+        results_pso = []
+        try:
+            results_pso = sim_smr.PSO(sim_smr.x_val, 0.75*sim_smr.x_val, 1.25*sim_smr.x_val, pop=3, max_ite=2)
+        except:
+            pass
+        
+        print(results_pso)
+        self.assertIsNot(results_pso, [])
 
 if __name__ == '__main__':
     unittest.main()

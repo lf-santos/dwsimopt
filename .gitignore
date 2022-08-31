@@ -8,6 +8,7 @@ bkp
 fig
 System.Buffers2.dll
 examples/example_surrogate.ipynb
+dwsimoptUI
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,python,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,python,visualstudiocode

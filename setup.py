@@ -17,6 +17,7 @@ setup(name='dwsimopt',
                         'wheel',
                         'pythonnet==2.5.2',
                         'pywin32',
+                        'matplotlib',
                         ],
       extras_require = {
           "dev": [
