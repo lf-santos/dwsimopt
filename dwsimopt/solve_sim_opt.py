@@ -99,7 +99,7 @@ class OptimiSim(SimulationOptimization):
 
             print(f'PSO finished with x* = {result_pso.gbest_x}')
             self.converge_simulation((result_pso.gbest_x))
-            print(f'fobj = self.f[0]()')
+            print(f'fobj = {self.f[0]()}')
             for i in range(self.n_g):
                 print(f'g_{i} = {self.g[i][0]()}')
 
@@ -144,7 +144,7 @@ class OptimiSim(SimulationOptimization):
 
             print(f'GA finished with x* = {result_GA.best_x}')
             self.converge_simulation((result_GA.best_x))
-            print(f'fobj = self.f[0]()')
+            print(f'fobj = {self.f[0]()}')
             for i in range(self.n_g):
                 print(f'g_{i} = {self.g[i][0]()}')
 
@@ -152,3 +152,96 @@ class OptimiSim(SimulationOptimization):
             plt.show()
 
         return result_GA
+
+    
+    def DE(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True):
+        # Global optimization with PSO
+        from sko.DE import DE
+
+        if pen_method=='barrier':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='quad':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='exp':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        else:
+            raise Exception(f"Penalization method {pen_method} not found.")
+
+        if pop==[]:
+            pop = 2*self.n_dof
+        if max_ite==[]:
+            max_ite = 5*self.n_dof
+        if prob_mut==[]:
+            prob_mut = 1
+        
+        result_DE = DE(func= f_pen, n_dim=self.n_dof, size_pop=pop, max_iter=max_ite, lb=xlb, ub=xub)
+        result_DE.run()
+        result_DE.record_mode = True
+        if self.n_f > 1:
+            raise Exception("Multi-objective optimization not supported (yet)")
+        elif self.n_f < 1:
+            raise Exception("Invalid number of objective functions")
+        else:
+            print("Starting global optimization")
+            result_DE.run()
+
+        if printing==True:
+            import matplotlib.pyplot as plt
+
+            print(f'DE finished with x* = {result_DE.best_x}')
+            self.converge_simulation((result_DE.best_x))
+            print(f'fobj = {self.f[0]()}')
+            for i in range(self.n_g):
+                print(f'g_{i} = {self.g[i][0]()}')
+
+            plt.plot(result_DE.generation_best_Y)
+            plt.show()
+
+        return result_DE
+
+    def AFSA(self, x0, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True,
+                max_try_num=100, step=0.5, visual=0.3, q=0.98, delta=0.5):
+        # Global optimization with PSO
+        from sko.AFSA import AFSA
+
+        if pen_method=='barrier':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='quad':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        elif pen_method=='exp':
+            f_pen = lambda x: self.fpen_barrier(x, pen=pen_factor)
+        else:
+            raise Exception(f"Penalization method {pen_method} not found.")
+
+        if pop==[]:
+            pop = 2*self.n_dof
+        if max_ite==[]:
+            max_ite = 5*self.n_dof
+        if prob_mut==[]:
+            prob_mut = 1
+        
+        result_AFSA = AFSA(func= f_pen, n_dim=self.n_dof, size_pop=pop, max_iter=max_ite, max_try_num=max_try_num, step=step, visual=visual, q=q, delta=delta)
+        result_AFSA.record_mode = True
+        result_AFSA.run()
+        if self.n_f > 1:
+            raise Exception("Multi-objective optimization not supported (yet)")
+        elif self.n_f < 1:
+            raise Exception("Invalid number of objective functions")
+        else:
+            print("Starting global optimization")
+            result_AFSA.run()
+        return result_AFSA
+
+        # if printing==True:
+        #     import matplotlib.pyplot as plt
+
+        #     print(f'AFSA finished with x* = {result_AFSA.best_x}')
+        #     self.converge_simulation((result_AFSA.best_x))
+        #     print(f'fobj = {self.f[0]()}')
+        #     for i in range(self.n_g):
+        #         print(f'g_{i} = {self.g[i][0]()}')
+
+        #     plt.plot(result_AFSA.generation_best_Y)
+        #     plt.show()
+
+        # return result_AFSA

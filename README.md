@@ -57,3 +57,9 @@ year = {2022},
 issn = {0306-2619},
 doi = {https://doi.org/10.1016/j.apenergy.2022.118537},
 </pre>
+
+
+## To-do list
+
+- Improve documentation of `OptimiSim`
+- 
