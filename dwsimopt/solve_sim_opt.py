@@ -66,7 +66,23 @@ class OptimiSim(SimulationOptimization):
                 self.interf = interf
             self.connect(interf)                # connect to simulation
 
-    def PSO(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, printing=True):
+    def PSO(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, plotting=True):
+        """Runs Particle Swarm Optimization to solve the simulation optimization problem defined in the `OptimiSim`
+
+        Args:
+            x0 (numpy.array): Array of initial values for the degrees of freedom
+            xlb (numpy.array): Array of lower bounds for the degrees of freedom
+            xub (numpy.array): Array of upper bounds for the degrees of freedom
+            pen_method (string): Penalization method ('barrier', 'quad', or 'exp')
+            pen_factor (float): Penalization factor (default=1000)
+            pop (int): population size (default=`2*n_dof`)
+            max_ite (int): maximum number of iterations (default=`5*n_dof`)
+            verbose (boolean): verbose (default=True)
+            plotting(boolean): boolean for plotting or not (default=True)
+
+        Returns:
+            result_pso (sko.PSO.PSO): `sko` object with the optimization results
+        """
         # Global optimization with PSO
         from sko.PSO import PSO
 
@@ -94,7 +110,7 @@ class OptimiSim(SimulationOptimization):
             print("Starting global optimization")
             result_pso.run()
 
-        if printing==True:
+        if plotting==True:
             import matplotlib.pyplot as plt
 
             print(f'PSO finished with x* = {result_pso.gbest_x}')
@@ -108,8 +124,25 @@ class OptimiSim(SimulationOptimization):
 
         return result_pso
 
-    def GA(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True):
-        # Global optimization with PSO
+    def GA(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, plotting=True):
+        """Runs Genetic Algorithm to solve the simulation optimization problem defined in the `OptimiSim`
+
+        Args:
+            x0 (numpy.array): Array of initial values for the degrees of freedom
+            xlb (numpy.array): Array of lower bounds for the degrees of freedom
+            xub (numpy.array): Array of upper bounds for the degrees of freedom
+            pen_method (string): Penalization method ('barrier', 'quad', or 'exp')
+            pen_factor (float): Penalization factor (default=1000)
+            pop (int): population size (default=`2*n_dof`)
+            max_ite (int): maximum number of iterations (default=`5*n_dof`)
+            prob_mut (float): probability of mutation from 0 to 1 (default=0.5)
+            verbose (boolean): verbose (default=True)
+            plotting(boolean): boolean for plotting or not (default=True)
+
+        Returns:
+            result_GA (sko.GA.GA): `sko` object with the optimization results
+        """
+        # Global optimization with GA
         from sko.GA import GA
 
         if pen_method=='barrier':
@@ -126,7 +159,7 @@ class OptimiSim(SimulationOptimization):
         if max_ite==[]:
             max_ite = 5*self.n_dof
         if prob_mut==[]:
-            prob_mut = 1
+            prob_mut = 0.5
         
         result_GA = GA(func= f_pen, n_dim=self.n_dof, size_pop=pop, max_iter=max_ite, prob_mut=prob_mut, lb=xlb, ub=xub)
         result_GA.run()
@@ -139,7 +172,7 @@ class OptimiSim(SimulationOptimization):
             print("Starting global optimization")
             result_GA.run()
 
-        if printing==True:
+        if plotting==True:
             import matplotlib.pyplot as plt
 
             print(f'GA finished with x* = {result_GA.best_x}')
@@ -154,8 +187,24 @@ class OptimiSim(SimulationOptimization):
         return result_GA
 
     
-    def DE(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True):
-        # Global optimization with PSO
+    def DE(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, plotting=True):
+        """Runs Differential Evolution to solve the simulation optimization problem defined in the `OptimiSim`
+
+        Args:
+            x0 (numpy.array): Array of initial values for the degrees of freedom
+            xlb (numpy.array): Array of lower bounds for the degrees of freedom
+            xub (numpy.array): Array of upper bounds for the degrees of freedom
+            pen_method (string): Penalization method ('barrier', 'quad', or 'exp')
+            pen_factor (float): Penalization factor (default=1000)
+            pop (int): population size (default=`2*n_dof`)
+            max_ite (int): maximum number of iterations (default=`5*n_dof`)
+            verbose (boolean): verbose (default=True)
+            plotting(boolean): boolean for plotting or not (default=True)
+
+        Returns:
+            result_DE (sko.DE.DE): `sko` object with the optimization results
+        """
+        # Global optimization with DE
         from sko.DE import DE
 
         if pen_method=='barrier':
@@ -171,8 +220,6 @@ class OptimiSim(SimulationOptimization):
             pop = 2*self.n_dof
         if max_ite==[]:
             max_ite = 5*self.n_dof
-        if prob_mut==[]:
-            prob_mut = 1
         
         result_DE = DE(func= f_pen, n_dim=self.n_dof, size_pop=pop, max_iter=max_ite, lb=xlb, ub=xub)
         result_DE.run()
@@ -185,7 +232,7 @@ class OptimiSim(SimulationOptimization):
             print("Starting global optimization")
             result_DE.run()
 
-        if printing==True:
+        if plotting==True:
             import matplotlib.pyplot as plt
 
             print(f'DE finished with x* = {result_DE.best_x}')
@@ -199,9 +246,9 @@ class OptimiSim(SimulationOptimization):
 
         return result_DE
 
-    def AFSA(self, x0, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], prob_mut=[], verbose=True, printing=True,
+    def AFSA(self, x0, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, plotting=True,
                 max_try_num=100, step=0.5, visual=0.3, q=0.98, delta=0.5):
-        # Global optimization with PSO
+        # Global optimization with AFSA
         from sko.AFSA import AFSA
 
         if pen_method=='barrier':
@@ -217,8 +264,6 @@ class OptimiSim(SimulationOptimization):
             pop = 2*self.n_dof
         if max_ite==[]:
             max_ite = 5*self.n_dof
-        if prob_mut==[]:
-            prob_mut = 1
         
         result_AFSA = AFSA(func= f_pen, n_dim=self.n_dof, size_pop=pop, max_iter=max_ite, max_try_num=max_try_num, step=step, visual=visual, q=q, delta=delta)
         result_AFSA.record_mode = True
@@ -232,7 +277,7 @@ class OptimiSim(SimulationOptimization):
             result_AFSA.run()
         return result_AFSA
 
-        # if printing==True:
+        # if plotting==True:
         #     import matplotlib.pyplot as plt
 
         #     print(f'AFSA finished with x* = {result_AFSA.best_x}')

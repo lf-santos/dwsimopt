@@ -57,7 +57,8 @@ class TestSimOpt(unittest.TestCase):
         # Instanciate automation manager object
         from DWSIM.Automation import Automation2
 
-        if ('interf' not in locals()):    # create automation manager
+        if ('interf' not in globals()):    # create automation manager
+            global interf
             interf = Automation2()
 
         # Connect simulation in sim.path2sim

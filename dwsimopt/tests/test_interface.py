@@ -75,7 +75,8 @@ class TestDWSIM_Interface(unittest.TestCase):
         except ModuleNotFoundError:
             pass
         self.assertIn('DWSIM.Automation', sys.modules)
-        if ('interf' not in locals()):    # create automation manager
+        if ('interf' not in globals()):    # create automation manager
+            global interf
             interf = Automation2()
 
         #Connect simulation in sim.path2sim

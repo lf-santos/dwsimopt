@@ -24,7 +24,7 @@ class TestOptimiSim(unittest.TestCase):
     """
 
     def test_OptimiSim_reproductibility(self):
-        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
+        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility using the OptimiSim.
         """
 
         # Loading DWSIM simulation into Python (Simulation object)
@@ -69,6 +69,9 @@ class TestOptimiSim(unittest.TestCase):
         self.sim = sim_smr
 
     def test_OptimiSim_PSO(self):
+        """Test for the DWSIM flowsheet optimization using Particle Swarm Optimization from OptimiSim.
+        """
+
         try: self.sim
         except:
             self.test_OptimiSim_reproductibility()
@@ -76,7 +79,7 @@ class TestOptimiSim(unittest.TestCase):
         
         results_pso = []
         try:
-            results_pso = sim_smr.PSO(sim_smr.x_val, 0.75*sim_smr.x_val, 1.25*sim_smr.x_val, pop=3, max_ite=2)
+            results_pso = sim_smr.PSO(sim_smr.x_val, 0.75*sim_smr.x_val, 1.25*sim_smr.x_val, pop=3, max_ite=2, plotting=False)
         except:
             pass
         
