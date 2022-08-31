@@ -49,7 +49,7 @@ class TestSimOpt(unittest.TestCase):
         if ROOT_DIR.find('tests')>-1:
             ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
         print(ROOT_DIR)
-        sim_smr = SimulationOptimization(dof=np.array([]), path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
+        sim_smr = SimulationOptimization(path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
                             path2dwsim = path2dwsim)
         sim_smr.savepath = os.getcwd() + "\\dwsimopt\\tests\\test_sim2.dwxmz"
         sim_smr.add_refs()
