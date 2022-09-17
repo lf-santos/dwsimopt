@@ -1,4 +1,4 @@
-dwsimopt.solve\_sim\_opt.py
+solve\_sim\_opt
 ----------------------------
 
 .. automodule:: dwsimopt.solve_sim_opt
@@ -6,7 +6,7 @@ dwsimopt.solve\_sim\_opt.py
    :undoc-members:
    :show-inheritance:
 
-dwsimopt.sim\_opt.py
+sim\_opt
 --------------------------
 
 .. automodule:: dwsimopt.sim_opt
@@ -14,7 +14,7 @@ dwsimopt.sim\_opt.py
    :undoc-members:
    :show-inheritance:
 
-dwsimopt.py2dwsim.py
+py2dwsim
 --------------------------
 
 .. automodule:: dwsimopt.py2dwsim
@@ -23,7 +23,7 @@ dwsimopt.py2dwsim.py
    :show-inheritance:
 
 
-dwsimopt.tests
+tests
 --------------------------
 .. toctree::
    :maxdepth: 2

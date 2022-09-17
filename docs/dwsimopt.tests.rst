@@ -1,4 +1,4 @@
-dwsimopt.tests.test\_interface.py
+test\_interface
 ---------------------------------------
 
 .. automodule:: dwsimopt.tests.test_interface
@@ -6,7 +6,7 @@ dwsimopt.tests.test\_interface.py
    :undoc-members:
    :show-inheritance:
 
-dwsimopt.tests.test\_sim\_opt.py
+test\_sim\_opt
 --------------------------------------
 
 .. automodule:: dwsimopt.tests.test_sim_opt
@@ -14,7 +14,7 @@ dwsimopt.tests.test\_sim\_opt.py
    :undoc-members:
    :show-inheritance:
 
-dwsimopt.tests.test\_py2dwsim.py
+test\_py2dwsim
 --------------------------------------
 
 .. automodule:: dwsimopt.tests.test_py2dwsim
@@ -22,7 +22,7 @@ dwsimopt.tests.test\_py2dwsim.py
    :undoc-members:
    :show-inheritance:
 
-dwsimopt.tests.test\_solve\_sim_opt.py
+test\_solve\_sim_opt
 --------------------------------------
 
 .. automodule:: dwsimopt.tests.test_solve_sim_opt

@@ -1,11 +1,11 @@
 """Module that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet
 
-.. module:: tests_sim_opt.py
+.. module:: test_sim_opt.py
    :synopsis: Tests for the DWSIM flowsheet calculation via Python interface
 
 .. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
-:Module: tests_sim_opt.py
+:Module: test_sim_opt.py
 :Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
 """

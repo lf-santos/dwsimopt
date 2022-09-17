@@ -6,7 +6,7 @@ with open("README.md", "r", encoding="utf8", errors='ignore') as fh:
 setup(name='dwsimopt',
       version='0.2.0',
       description='DWSIM automation with python for chemical process simulation optimization',
-      url='http://https://github.com/lf-santos/dwsimopt',
+      url='https://github.com/lf-santos/dwsimopt',
       author='Lucas F. Santos',
       author_email='lfs.francisco.95@gmal.com',
       license='MIT',
