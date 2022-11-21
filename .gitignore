@@ -9,6 +9,7 @@ fig
 System.Buffers2.dll
 examples/example_surrogate.ipynb
 dwsimoptUI
+Luan_PIBIC
 
 # Created by https://www.toptal.com/developers/gitignore/api/windows,python,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,python,visualstudiocode

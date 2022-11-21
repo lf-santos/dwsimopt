@@ -259,6 +259,8 @@ def _fromDwsim(desc, sim):
             f = lambda: obj.Phases[_phases].Properties.massfraction
         elif desc[1] == 'MolarFraction':
             f = lambda: obj.Phases[_phases].Properties.molarfraction
+        elif desc[1] == 'CompoundMassFlow':
+            f = lambda: Converter.ConvertToSI(f"{desc[3]}", obj.GetCompoundMassFlow(desc[2]))
         else:
             print(f"No property of {desc[0]} named {desc[1]}")
             f = None
