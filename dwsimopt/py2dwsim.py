@@ -238,6 +238,7 @@ def _fromDwsim(desc, sim):
     # print(name)
 
     # PHASE?
+    _phases=0
     if desc[2]=='Overall':
         _phases=0
     elif desc[2]=='Liquid':

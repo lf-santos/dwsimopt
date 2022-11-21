@@ -40,10 +40,10 @@ class OptimiSim(SimulationOptimization):
                 force_convergence=True,
                 init_dwsim=True):
         super().__init__(path2sim,
-                path2dwsim = "", 
-                savepath = "", 
-                verbose = True, 
-                force_convergence=True)  # pragma: no cover
+                path2dwsim = path2dwsim, 
+                savepath = savepath, 
+                verbose = verbose, 
+                force_convergence=force_convergence)  # pragma: no cover
 
         if init_dwsim == True:
             import os

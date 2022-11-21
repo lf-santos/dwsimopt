@@ -30,11 +30,11 @@ class SimulationOptimization():
         :ivar n_g: Number of constraints
         :ivar force_convergence: Boolean that controls if multiple simulation runs is allowed. It may be usefull for simulations that include python scripts. It is not recomended for those that take a long time to converge.
     """
-    def __init__(self, 
-                path2sim, 
-                path2dwsim = "", 
+    def __init__(self,
+                path2sim,
+                path2dwsim = "",
                 savepath = "",
-                verbose = True, 
+                verbose = True,
                 force_convergence=True):  # pragma: no cover
         self.path2sim = path2sim
         self.path2dwsim = path2dwsim
@@ -52,9 +52,9 @@ class SimulationOptimization():
         self.dof = np.array([], dtype=object)
         self.n_dof = self.dof.size
         self.verbose = verbose
-        self.force_convergence = force_convergence            
+        self.force_convergence = force_convergence
 
-    
+
     def add_refs(self):
         """This method add reference in the proggraming environment to the DWSIM dlls, so they can be imported.
         """
@@ -62,7 +62,7 @@ class SimulationOptimization():
         pythoncom.CoInitialize()
 
         import clr
-        
+
         clr.AddReference(self.path2dwsim + "CapeOpen.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Automation.dll")
         clr.AddReference(self.path2dwsim + "DWSIM.Interfaces.dll")
@@ -78,7 +78,7 @@ class SimulationOptimization():
         clr.AddReference(self.path2dwsim + "System.Buffers.dll")
         clr.AddReference(self.path2dwsim + "SkiaSharp.dll")
         clr.AddReference(self.path2dwsim + "OxyPlot")
-        
+
         print("added refs")
 
     def connect(self, interf):
@@ -96,7 +96,7 @@ class SimulationOptimization():
             # add DWSIM objects to Simulation object
             self.interface = interf
             self.flowsheet = flowsheet
-            
+
             if flowsheet is not None:
                 print("Simulation was loaded successfully")
 
@@ -136,7 +136,7 @@ class SimulationOptimization():
         else:
             self.g = np.block( [ [self.g],  [np.append( g_func, description)] ] )
         self.n_g += 1
-    
+
     def converge_simulation(self, x):
         """Converge the simulation with degrees of freedom values of ``x``
 
@@ -150,6 +150,7 @@ class SimulationOptimization():
         for i in range(self.n_dof):
             self.dof[i][0](x[i])
         # first calculation
+        self.interface.SaveFlowsheet(self.flowsheet,self.savepath,True) # -> trial savingg to debug
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.1)
         # second calculation
@@ -199,7 +200,7 @@ class SimulationOptimization():
         Returns:
             numpy.array: Array of objectives and constraints values calculated at ``x``
         """
-        try: 
+        try:
             delta_x = np.linalg.norm(self.x_val - np.asarray(x))
         except:
             delta_x = 1
@@ -298,7 +299,7 @@ class SimulationOptimization():
             pop = 2*self.n_dof
         if max_ite==[]:
             max_ite = 5*self.n_dof
-        
+
         result_pso = PSO(func= f_pen, n_dim=self.n_dof, pop=pop, max_iter=max_ite, lb=xlb, ub=xub, verbose=verbose)
         result_pso.record_mode = True
         if self.n_f > 1:
@@ -341,7 +342,7 @@ class SimulationOptimization():
             max_ite = 5*self.n_dof
         if prob_mut==[]:
             prob_mut = 1
-        
+
         result_GA = GA(func= f_pen, n_dim=self.n_dof, pop=pop, max_iter=max_ite, prob_mut=prob_mut, lb=xlb, ub=xub, verbose=verbose)
         result_GA.record_mode = True
         if self.n_f > 1:
