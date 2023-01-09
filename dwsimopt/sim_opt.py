@@ -150,7 +150,7 @@ class SimulationOptimization():
         for i in range(self.n_dof):
             self.dof[i][0](x[i])
         # first calculation
-        self.interface.SaveFlowsheet(self.flowsheet,self.savepath,True) # -> trial savingg to debug
+        # self.interface.SaveFlowsheet(self.flowsheet,self.savepath,True) # -> trial savingg to debug
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
         time.sleep(0.1)
         # second calculation
@@ -159,7 +159,10 @@ class SimulationOptimization():
             time.sleep(0.1)
             res_old = np.array([self.f[0]()])
             for i in range(self.n_g):
-                res_old = np.append(res_old, np.asarray(self.g[i][0]()))
+                if self.n_g > 1:
+                    res_old = np.append(res_old, np.asarray(self.g[i][0]()))
+                else:
+                    res_old = np.append(res_old, np.asarray(self.g[0]()))
 
             # third+ calculation
             for conv_ite in range(3):
@@ -167,7 +170,10 @@ class SimulationOptimization():
                 time.sleep(0.1)
                 res_new = np.array([self.f[0]()])
                 for i in range(self.n_g):
-                    res_new = np.append(res_new, self.g[i][0]())
+                    if self.n_g > 1:
+                        res_new = np.append(res_new, np.asarray(self.g[i][0]()))
+                    else:
+                        res_new = np.append(res_new, np.asarray(self.g[0]()))
                 try:
                     variation = np.linalg.norm(res_new-res_old)
                 except:
