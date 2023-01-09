@@ -147,8 +147,13 @@ class SimulationOptimization():
             print(f"opt_functions calculation at x = {x}")
         if x.size != self.n_dof:
             print(f"Size of x {x.size} is diferent from n_dof = {self.n_dof}. DO you know what your doing? Only {x.size} values of dof will be assigned.")
-        for i in range(self.n_dof):
-            self.dof[i][0](x[i])
+        if self.n_dof > 1:
+            for i in range(self.n_dof):
+                self.dof[i][0](x[i])
+        elif self.n_dof == 1:
+            self.dof[0](x[0])
+        else:
+            print(f'You are converging simulation at x = {x}. Is that what you wanted?')
         # first calculation
         # self.interface.SaveFlowsheet(self.flowsheet,self.savepath,True) # -> trial savingg to debug
         error = self.interface.CalculateFlowsheet2(self.flowsheet)
@@ -210,7 +215,7 @@ class SimulationOptimization():
             delta_x = np.linalg.norm(self.x_val - np.asarray(x))
         except:
             delta_x = 1
-        if delta_x > 1e-10:
+        if delta_x > 1e-10 or all(self.x_val == None):
             self.converge_simulation(x)
             self.x_val = np.array(x)
             self.f_val = np.zeros(self.n_f)
@@ -227,12 +232,19 @@ class SimulationOptimization():
                 for i, gg in enumerate(self.g):
                     self.g_val[i] = gg[0]()
             elif self.n_g==0:
-                self.f_val = None
+                self.g_val = None
             else:
                 self.g_val = np.array([self.g[0]()])
         if self.verbose:
             print(f"f = {self.f_val}, g = {self.g_val} at x = {x}")
-        return np.append(self.f_val, self.g_val)
+        
+        if self.n_g>0:
+            return np.append(self.f_val, self.g_val)
+        else:
+            return self.f_val
+
+    def save_flowsheet(self):
+        self.interface.SaveFlowsheet(self.flowsheet,self.savepath,True)
 
     def fpen_barrier(self,x,pen=1000):
         """Calculates a penalized objective function using barrier method and considering ``f`` and ``g``.
@@ -280,12 +292,14 @@ class SimulationOptimization():
         Returns:
             float: Penalized objective function.
         """
+        import math
+        
         self.calculate_optProblem(x)
         fpen = 0
         for i in range(self.n_f):
             fpen += self.f_val[i]
         for i in range(self.n_g):
-            fpen += pen*exp(max(0, self.g_val[i]))
+            fpen += pen*math.exp(max(0, self.g_val[i]))
         return fpen
 
     def PSO(self, x0, xlb, xub, pen_method='barrier', pen_factor=1000, pop=[], max_ite=[], verbose=True, printing=True):
