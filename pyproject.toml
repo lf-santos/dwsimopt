@@ -1,0 +1,67 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dwsimopt"
+version = "0.3.0"
+description = "DWSIM automation with Python for chemical process simulation and optimization"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "Lucas F. Santos", email = "lfs.francisco.95@gmail.com" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Chemistry",
+    "Topic :: Scientific/Engineering :: Mathematics",
+]
+dependencies = ["numpy>=1.21"]
+
+[project.optional-dependencies]
+optimization = ["scikit-opt>=0.6", "scipy>=1.7", "matplotlib>=3.4"]
+dwsim = ["pythonnet>=3.0", "pywin32; sys_platform == 'win32'"]
+all = ["dwsimopt[optimization,dwsim]"]
+dev = [
+    "dwsimopt[all]",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.4",
+    "mypy>=1.0",
+    "sphinx>=7.0",
+    "sphinx-rtd-theme>=2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/lf-santos/dwsimopt"
+Documentation = "https://pydwsimopt.readthedocs.io"
+Repository = "https://github.com/lf-santos/dwsimopt"
+Issues = "https://github.com/lf-santos/dwsimopt/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dwsimopt"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["requires_dwsim: marks tests that require DWSIM installed"]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

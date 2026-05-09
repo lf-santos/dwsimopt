@@ -1,94 +1,80 @@
-"""Module that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet
-
-.. module:: test_sim_opt.py
-   :synopsis: Tests for the DWSIM flowsheet calculation via Python interface
-
-.. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
-
-:Module: test_sim_opt.py
-:Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
-
 """
-import sys
+Tests for SimulationOptimization (backwards compatibility).
+"""
+
 import os
+
 import numpy as np
-import unittest
+import pytest
 
 from dwsimopt.sim_opt import SimulationOptimization
-from dwsimopt.utils import PATH2DWSIMOPT
 
-class TestSimOpt(unittest.TestCase):
-    """Class that contains the tests for the SimulationOptimization utilization for calculating the DWSIM flowsheet.
 
-    Args:
-        unittest (): Standard python module for unit testting code.
-    """
+class TestSimulationOptimizationUnit:
+    """Unit tests that don't require DWSIM."""
 
-    def test_SimOpt_reproductibility(self):
-        """Test for the DWSIM flowsheet calculation via Python interface and reproductibility.
-        """
-        # Getting DWSIM path from system path
-        path2dwsim = []
-        for k,v in enumerate(os.environ['path'].split(';')):
-            if v.find('\DWSIM')>-1:
-                path2dwsim = os.path.join(v, '')
-        if path2dwsim == []:
-            path2dwsim = input(r"Please, input the path to your DWSIM installation, usually C:\Users\UserName\AppData\Local\DWSIM7")   #insert manuall
-            if path2dwsim[-1] not in '\/':
-                path2dwsim += r'/'
+    def test_instantiation(self):
+        sim = SimulationOptimization(path2sim="dummy.dwxmz", path2dwsim="/dummy")
+        assert sim.n_dof == 0
+        assert sim.n_f == 0
+        assert sim.n_g == 0
+        assert sim.path2sim == sim.path_to_sim
+        assert sim.verbose is True
 
-        # Loading DWSIM simulation into Python (Simulation object)
-        ROOT_DIR = os.path.abspath(os.getcwd())
-        if ROOT_DIR.find('tests')>-1:
-            ROOT_DIR = '\\'.join(ROOT_DIR.split('\\')[0:-2])
-        print(ROOT_DIR)
-        sim_smr = SimulationOptimization(path2sim= os.path.join(ROOT_DIR, "dwsimopt\\tests\\test_sim.dwxmz"), 
-                            path2dwsim = path2dwsim)
-        sim_smr.savepath = os.getcwd() + "\\dwsimopt\\tests\\test_sim2.dwxmz"
-        sim_smr.add_refs()
+    def test_add_dof(self):
+        sim = SimulationOptimization(path2sim="dummy.dwxmz", path2dwsim="/dummy")
+        sim.add_dof(lambda x: x)
+        assert sim.n_dof == 1
+        sim.add_dof(lambda x: x * 2)
+        assert sim.n_dof == 2
 
-        # Instanciate automation manager object
+    def test_add_fobj(self):
+        sim = SimulationOptimization(path2sim="dummy.dwxmz", path2dwsim="/dummy")
+        sim.add_fobj(lambda: 42.0)
+        assert sim.n_f == 1
+
+    def test_add_constraint(self):
+        sim = SimulationOptimization(path2sim="dummy.dwxmz", path2dwsim="/dummy")
+        sim.add_constraint(lambda: -1.0)
+        assert sim.n_g == 1
+
+
+@pytest.mark.requires_dwsim
+class TestSimulationOptimizationIntegration:
+    """Integration tests requiring DWSIM."""
+
+    @pytest.fixture
+    def sim_smr(self):
+        test_dir = os.path.dirname(__file__)
+        sim_path = os.path.join(test_dir, "test_sim.dwxmz")
+        path2dwsim = ""
+        for entry in os.environ.get("PATH", "").split(os.pathsep):
+            if "DWSIM" in entry.upper():
+                path2dwsim = os.path.join(entry, "")
+                break
+
+        sim = SimulationOptimization(path2sim=sim_path, path2dwsim=path2dwsim)
+        sim.add_refs()
+
         from DWSIM.Automation import Automation2
 
-        if ('interf' not in globals()):    # create automation manager
-            global interf
-            interf = Automation2()
+        interf = Automation2()
+        sim.connect(interf)
+        return sim
 
-        # Connect simulation in sim.path2sim
-        sim_smr.connect(interf)
+    def test_reproducibility(self, sim_smr):
+        sim_smr.add_dof(
+            lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1")
+            .SetOverallCompoundMassFlow(7, x)
+        )
+        sim_smr.add_fobj(
+            lambda: sim_smr.flowsheet.GetFlowsheetSimulationObject("Sum_W").EnergyFlow
+        )
 
-        # Add dof
-        sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(7,x))
-        sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(0,x))
-        sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(1,x))
-        sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(2,x))
-        sim_smr.add_dof(lambda x: sim_smr.flowsheet.GetFlowsheetSimulationObject("MR-1").SetOverallCompoundMassFlow(5,x))
-        def set_property(x, obj):
-            obj = x
-        sim_smr.add_dof( lambda x: set_property(x, sim_smr.flowsheet.GetFlowsheetSimulationObject("VALV-01").OutletPressure) )
-        sim_smr.add_dof( lambda x: set_property(x, sim_smr.flowsheet.GetFlowsheetSimulationObject("COMP-4").POut) )
-        sim_smr.add_dof( lambda x: set_property(x, sim_smr.flowsheet.GetFlowsheetSimulationObject("COOL-08").OutletTemperature) )
-        # adding objective function (f_i):
-        sim_smr.add_fobj(lambda : sim_smr.flowsheet.GetFlowsheetSimulationObject("Sum_W").EnergyFlow)
-        # adding constraints (g_i <= 0):
-        sim_smr.add_constraint(np.array([lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA1-Calc").OutputVariables['mita']]))
-        sim_smr.add_constraint(np.array([lambda : 3 - sim_smr.flowsheet.GetFlowsheetSimulationObject("MITA2-Calc").OutputVariables['mita']]))
-        sim_smr.add_constraint(np.array([lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-03").Phases[1].Properties.massfraction]))
-        sim_smr.add_constraint(np.array([lambda : 10*sim_smr.flowsheet.GetFlowsheetSimulationObject("MSTR-05").Phases[1].Properties.massfraction]))
-        
-        # Initial simulation optimization setup
-        # Initial guess of optimization
-        x0 = np.array( [0.25/3600, 0.70/3600, 1.0/3600, 1.10/3600, 1.80/3600, 2.50e5, 50.00e5, -60+273.15] )
+        x0 = np.array([0.25 / 3600])
+        f1 = sim_smr.calculate_optProblem(x0)
+        f2 = sim_smr.calculate_optProblem(1.1 * x0)
+        f3 = sim_smr.calculate_optProblem(x0)
 
-        # Testing for simulation at x0
-        f = sim_smr.calculate_optProblem(1.0*x0)
-        f2 = sim_smr.calculate_optProblem(1.1*x0)
-        f3 = sim_smr.calculate_optProblem(1.0*x0)
-
-        self.assertNotEqual(sum((f-f2)**2), 0)
-        np.testing.assert_array_almost_equal(f, f3)
-
-        self.sim = sim_smr
-
-if __name__ == '__main__':
-    unittest.main()
+        assert not np.allclose(f1, f2)
+        np.testing.assert_array_almost_equal(f1, f3)

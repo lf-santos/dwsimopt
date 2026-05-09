@@ -9,13 +9,13 @@
 :Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
 """
-import sys
 import os
-import numpy as np
 import unittest
 
+import numpy as np
+
 from dwsimopt.sim_opt import SimulationOptimization
-from dwsimopt.utils import PATH2DWSIMOPT
+
 
 class TestSimOpt(unittest.TestCase):
     """Class that contains the tests for the Python-DWSIM data exchange interface

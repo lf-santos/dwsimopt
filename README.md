@@ -1,46 +1,138 @@
-# dwsimopt: DWSIM simulation optimization with Python!
+# dwsimopt: DWSIM simulation & optimization with Python
 
 [![PyPI](https://img.shields.io/pypi/v/dwsimopt)](https://pypi.org/project/dwsimopt/)
-<a href='https://pydwsimopt.readthedocs.io/en/latest/?badge=latest' target="blank">
-    <img src='https://readthedocs.org/projects/pydwsimopt/badge/?version=latest' alt='Documentation Status' />
-</a>
-[![License](https://img.shields.io/pypi/l/dwsimopt.svg)](https://github.com/lf-santos/dwsimopt/LICENSE)
+[![Python](https://img.shields.io/pypi/pyversions/dwsimopt)](https://pypi.org/project/dwsimopt/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Docs](https://readthedocs.org/projects/pydwsimopt/badge/?version=latest)](https://pydwsimopt.readthedocs.io)
 
-The DWSIM Optimization (`dwsimopt`) is a Python library that automates DWSIM simulations for process optimization.
-The simulation dlls are embedded in the programming environment so that they can be accessed and modified by the optimization algorithms.
+A Python package for automating [DWSIM](https://dwsim.org) process simulations and solving
+simulation-based optimization problems.
 
-## Mathematical background
+## What's New in v0.3.0
 
-Although very efficient to describe in detail complex systems that would otherwise have to be simplified or approximated, black-box process simulators lack the symbolic formulation of the process model equations and the analytical derivatives that are useful for optimization, for example. The use of simulation may also introduce noise to the calculations due to convergence and approximations of numerical methods, which can jeopardize the calculation of accurate approximate derivatives and, therefore, the use of gradient-based optimization methods directly <a href="https://doi.org/10.1002/aic.11579">[1]</a>. Also, the lack of analytical formulations of the optimization problem prevents the derivation of rigorous upper and lower bounds of the functions that are used for deterministic global optimization <a href="https://doi.org/10.1007/s11590-016-1028-2">[2]</a>. In that sense, the optimization models that require simulations to calculate the objective function and/or constraints are often referred to as simulation optimization problem <a href="https://doi.org/10.1007/s10479-015-2019-x">[3]</a>. A simplified version of this class of problems can be described as finding an ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20%5Ctextbf%7Bx%7D%5E*%5Cin%20%5Cmathbb%7BR%7D%5En%7D) that solves globally the following constrained problem
-
-![equation](https://latex.codecogs.com/svg.latex?%7B%5Ccolor%7BMagenta%7D%20%5Cbegin%7Balign*%7D%20%5Cmin_%7B%5Ctextbf%7Bx%7D%5Cin%20%5Cmathcal%7BD%7D%7D%26%20%5C%20%5C%20f%28%5Ctextbf%7Bx%7D%29%5C%5C%20s.t.%26%20%5C%20%5C%20%5Ctextbf%7Bg%7D%28%5Ctextbf%7Bx%7D%29%5Cle%200%2C%20%5Cend%7Balign%7D%7D)
-
-in which the objective function ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20f%3A%5Cmathbb%7BR%7D%5En%5Cmapsto%20%5Cmathbb%7BR%7D%7D) and constraints ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20%5Ctextbf%7Bg%7D%3A%5Cmathbb%7BR%7D%5En%5Cmapsto%20%5Cmathbb%7BR%7D%5Eq%7D), being *q* the number of constraints, are somewhat expensive to calculate, slightly noisy, and black-box functions, *i.e.* there is no available mathematical expression for *f* or **g**, but for a given ![equation](https://latex.codecogs.com/svg.latex?%5Cinline%20%7B%5Ccolor%7BMagenta%7D%20%5Ctextbf%7Bx%7D%5Cin%5Cmathcal%7BD%7D%5Csubseteq%5Cmathbb%7BR%7D%5En%7D) the values of *f*(**x**) and **f**(**x**) are calculated in a computer code simulation with some noise.
-
-## Requirements
-- Python <= 3.9 (python 3.8 recommended -- using python 3.9 requires installing dwsimopt from ``setup.py``)
-- DWSIM v7+ (open-source chemical process simulation. <a href="https://dwsim.org/index.php/download/">Download here</a>)
-- pythonnet == 2.5.2 (on Python 3.9 you'll need to <a href="https://www.lfd.uci.edu/~gohlke/pythonlibs/#pythonnet">download the pythonnet2.5.2 wheel</a> and ``pip install path\to\pythonnet_wheel``)
-- pywin32
-- numpy
-- scipy
-- scikit-opt
-
-It is recommendable to start from a fresh environment and let the `dwsimopt` install the dependencies, see <a href=#installation>Installation</a> section. DWSIM must be downloaded and installed manually.
+- **Separated concerns**: Simulation connection (`DWSIMSimulation`) is now independent of
+  optimization (`SimulationOptimization`, `OptimiSim`).
+- **Modern packaging**: Uses `pyproject.toml` with `hatchling` build backend. Compatible with
+  `uv`, `pip`, and `pipx`.
+- **Python 3.9+**: Dropped Python 3.8 support; uses modern type hints.
+- **Optional dependencies**: Core package only needs `numpy`. Install `[optimization]` or
+  `[dwsim]` extras as needed.
+- **100% backwards compatible**: Existing code using `SimulationOptimization` or `OptimiSim`
+  works without changes.
 
 ## Installation
 
-Install the latest version of this repository to your machine
+```bash
+# With uv (recommended)
+uv add dwsimopt
 
-<pre>pip install dwsimopt</pre>
-or
-<pre>git clone https://github.com/lf-santos/dwsimopt.git
-cd dwsimopt
-python setup.py install
-</pre>
+# With pip
+pip install dwsimopt
 
-Make sure you have all the required packages and software. Navigate through the jupyter notebook examples. Use the `OptimiSim` class to embed your `DMSWIM` simulation into Python. Add degrees of freedom, objective function and constraints from your simulation optimization problem with the `py2dwim` python-dwsim data exchange interface. Solve the problem with a suitable optimization solver (surrogate-based optimization or global optimization meta-heuristics recommended) that you can find methods in the `OptimiSim` class (*e.g.* `GA`, `PSO`, `DE`)
+# With all extras (optimization solvers + DWSIM bindings)
+uv add "dwsimopt[all]"
+pip install "dwsimopt[all]"
 
+# Development
+uv add "dwsimopt[dev]"
+```
+
+## Quick Start
+
+### Simulation only (new API)
+
+```python
+from dwsimopt import DWSIMSimulation
+
+sim = DWSIMSimulation("experiment.dwxmz")
+sim.connect()
+
+# Configure inputs
+sim.set_stream_temperature("Feed", 350.0)
+sim.set_stream_mass_flow("Feed", 1.5)
+sim.set_unit_op_property("Heater-1", "OutletTemperature", 400.0)
+
+# Run
+sim.run()
+
+# Read results
+product = sim.get_stream_data("Product")
+print(f"Product T = {product.temperature_K} K")
+print(f"Product flow = {product.mass_flow_kg_s} kg/s")
+
+energy = sim.get_energy_stream_data("Q-Heater")
+print(f"Heat duty = {energy.energy_flow_kW} kW")
+```
+
+### Simulation optimization (backwards-compatible)
+
+```python
+from dwsimopt import OptimiSim
+import numpy as np
+
+# Auto-connects to DWSIM
+sim = OptimiSim(path2sim="experiment.dwxmz")
+
+# Define optimization problem
+sim.add_dof(lambda x: sim.flowsheet.GetFlowsheetSimulationObject("Feed").SetTemperature(f"{x} K"))
+sim.add_fobj(lambda: sim.flowsheet.GetFlowsheetSimulationObject("Q-Heater").EnergyFlow)
+sim.add_constraint(lambda: 400 - sim.flowsheet.GetFlowsheetSimulationObject("Product").GetTemperature())
+
+# Solve with PSO
+result = sim.PSO(
+    x0=np.array([350.0]),
+    xlb=np.array([300.0]),
+    xub=np.array([500.0]),
+    plotting=True,
+)
+```
+
+### Using py2dwsim data exchange (backwards-compatible)
+
+```python
+from dwsimopt import SimulationOptimization, create_pddx
+
+sim = SimulationOptimization(path2sim="experiment.dwxmz", path2dwsim="/path/to/DWSIM/")
+sim.add_refs()
+
+from DWSIM.Automation import Automation2
+interf = Automation2()
+sim.connect(interf)
+
+# Declarative DOF setup
+create_pddx(["Feed", "Temperature", "Mixture", "K"], sim, element="dof")
+create_pddx(["Heater", "EnergyFlow", "Mixture", "kW"], sim, element="fobj")
+```
+
+## Architecture
+
+```
+dwsimopt/
+├── simulation.py      # DWSIMSimulation — connection, run, get/set (no optimization)
+├── sim_opt.py         # SimulationOptimization — adds DOF/obj/constraints on top
+├── solve_sim_opt.py   # OptimiSim — auto-init + solver methods (PSO, GA, DE, AFSA)
+├── py2dwsim.py        # Declarative getter/setter factory (create_pddx)
+└── utils.py           # Shared utilities
+```
+
+**Inheritance chain:**
+
+```
+DWSIMSimulation  →  SimulationOptimization  →  OptimiSim
+(connection)        (problem definition)       (solvers)
+```
+
+## Requirements
+
+- Python ≥ 3.9
+- DWSIM installed (Windows) for simulation execution
+- `numpy` (core dependency)
+- `scikit-opt` (optional, for optimization solvers)
+- `pythonnet` ≥ 3.0 (optional, for DWSIM .NET interop)
+
+## License
+
+MIT License — see [LICENSE](LICENSE).
 
 ## Citing us
 

@@ -9,12 +9,13 @@
 :Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
 
 """
-import sys
 import os
-import numpy as np
 import unittest
 
+import numpy as np
+
 from dwsimopt.solve_sim_opt import OptimiSim
+
 
 class TestOptimiSim(unittest.TestCase):
     """Class that contains the tests for the OptimiSim utilization for calculating the DWSIM flowsheet.
@@ -23,7 +24,7 @@ class TestOptimiSim(unittest.TestCase):
         unittest (): Standard python module for unit testting code.
     """
 
-    def test_OptimiSim_reproductibility(self):
+    def test_OptimiSim_reproductibility(self) -> None:
         """Test for the DWSIM flowsheet calculation via Python interface and reproductibility using the OptimiSim.
         """
 

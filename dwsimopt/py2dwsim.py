@@ -1,312 +1,274 @@
-"""Module that contains functions for data exchange from-to python to-from dwsim
-
-.. module:: py2dwsim.py
-   :synopsis: Data exchange from python to dwsim
-
-.. moduleauthor:: Lucas F. Santos <lfs.francisco.95@gmail.com>
-
-:Module: py2dwsim.py
-:Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
-
 """
+Python-DWSIM data exchange — create getter/setter functions for simulation objects.
+
+This module provides the ``create_pddx`` and ``assign_pddx`` functions that generate
+lambda-based getter/setter channels between Python and DWSIM simulation objects.
+
+Backwards-compatible with the original ``dwsimopt.py2dwsim`` API.
+
+.. module:: py2dwsim
+   :synopsis: Data exchange from Python to DWSIM
+
+:Author: Lucas F. Santos <lfs.francisco.95@gmail.com>
+"""
+
+from __future__ import annotations
+
+from typing import Any, Callable
+
 import numpy as np
 
-def create_pddx(desc, sim, element="dof", assign=True):
-    """Main function from py2dwsim.py that creates a python-dwsim data exchange channel.
-    It can return a np.array of getter or setter functions from/to the dwsim simulation.
-    The default is to assing the data exchange hub to the SimulationOptimization object passed to this function.
+
+def create_pddx(
+    desc: list[str],
+    sim: Any,
+    element: str = "dof",
+    assign: bool = True,
+) -> list[Callable] | None:
+    """Create a Python-DWSIM data exchange (pddx) channel.
+
+    Generates getter or setter functions for DWSIM simulation objects and optionally
+    assigns them to the optimization problem.
 
     Args:
-        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit']
-        sim (dwsimopt.OptimSim): object of dwsimopt.SimulationOpimization or that inherits from it
-        element (str, optional): optimization problem element: 'dof', 'fobj', or 'constraint'. Defaults to "dof".
-        assign (bool, optional): if True: assign the python-dwsim data exchange channel to the corresponding `element` in `sim`, else: return lambda function. Defaults to True.
+        desc: Descriptor list ``[object_name, property, compound/phase, unit]``.
+        sim: A :class:`~dwsimopt.sim_opt.SimulationOptimization` instance.
+        element: Problem element type — ``'dof'``, ``'fobj'``, or ``'constraint'``.
+        assign: If True, assign to ``sim``. If False, return the function(s).
 
     Returns:
-        numpy.array: np.array of getter or setter functions from/to the dwsim simulation if `assign==False`
+        list of callables if ``assign=False``, otherwise None (assigned in-place).
     """
-    #assign python-dwsim data exchange channel
     m = np.shape(desc)
 
-    # Test if input has length 3
     if m[-1] < 2:
-        print("desc list must be [object name (str), object property (str), compound or mixture (str), unit (str)='']")
+        raise ValueError(
+            "desc must be [object_name (str), property (str), compound_or_phase (str), unit (str)]"
+        )
 
-    # Get only the number of inputs to be assigned to dwsim
-    if len(m)<=1:
-        m=1
-    else:
-        m = m[0]
+    # Number of inputs
+    n_inputs = m[0] if len(m) > 1 else 1
 
-    # If multiple Inputs:
-    ff = []
-    for ite in range(m):
-         # Get what element is added do sim object
-        if element=="dof":
-            elem_add = sim.add_dof
-            elem = sim.dof
-            elem_n = sim.n_dof
-        elif element=="fobj":
-            elem_add = sim.add_fobj
-            elem = sim.f
-            elem_n = sim.n_f
-        elif element=="constraint":
-            elem_add = sim.add_constraint
-            elem = sim.g
-            elem_n = sim.n_g
-        else:
-            print(f"There is no such element in {sim} object")
+    ff: list[Callable] = []
+    for ite in range(n_inputs):
+        desc_ite = desc[ite] if n_inputs > 1 else desc
 
-        # Get current input in case of multiple ones
-        if m>1:
-            desc_ite = desc[ite]
+        if element == "dof":
+            f = _to_dwsim(desc_ite, sim)
+        elif element in ("fobj", "constraint"):
+            f = _from_dwsim(desc_ite, sim)
         else:
-            desc_ite = desc
-        
-        # Get function `f` that communicates with dwsim
-        if element=="dof":
-            f = _toDwsim(desc_ite, sim)
-        else:
-            f = _fromDwsim(desc_ite, sim)
+            raise ValueError(
+                f"Unknown element type '{element}'. Use 'dof', 'fobj', or 'constraint'."
+            )
 
         ff.append(f)
-    if assign==True:
+
+    if assign:
         assign_pddx(ff, desc, sim, element)
+        return None
     else:
         if element == "dof":
-            print(f"Successfully created a setter pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
+            print(f"Created setter pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
         else:
-            print(f"Successfully created a getter pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
+            print(f"Created getter pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
         return ff
 
-def assign_pddx(f, desc, sim, element="dof"):
-    """Assign pddx to `sim` object. This is useful for more complex objective/constaint functions. Basic use is to generate pddx getter functions to define a more complicated one and assign to `sim`.
+
+def assign_pddx(
+    f: Any,
+    desc: list[str],
+    sim: Any,
+    element: str = "dof",
+) -> None:
+    """Assign a pddx function to the simulation optimization object.
+
+    Use this for custom objective/constraint functions built from basic pddx getters.
 
     Args:
-        f (function): function (def or lambda) containing the definition of objective/constraint function.
-        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit']
-        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization
-        element (str, optional): optimization problem element: 'dof', 'fobj', or 'constraint'. Defaults to "dof".
+        f: Function or list of functions to assign.
+        desc: Descriptor list.
+        sim: :class:`~dwsimopt.sim_opt.SimulationOptimization` instance.
+        element: ``'dof'``, ``'fobj'``, or ``'constraint'``.
     """
-    #assign python-dwsim data exchange channel
-    m = np.size(f)
-    
-    # If multiple Inputs:
-    for ite in range(m):
-         # Get what element is added do sim object
-        if element=="dof":
+    n = np.size(f) if isinstance(f, (list, np.ndarray)) else 1
+    funcs = [f] if n == 1 and callable(f) else f
+
+    for ite in range(n):
+        func = funcs[ite] if n > 1 else funcs[0]
+
+        if element == "dof":
             elem_add = sim.add_dof
             elem = sim.dof
             elem_n = sim.n_dof
-        elif element=="fobj":
+        elif element == "fobj":
             elem_add = sim.add_fobj
             elem = sim.f
             elem_n = sim.n_f
-        elif element=="constraint":
+        elif element == "constraint":
             elem_add = sim.add_constraint
             elem = sim.g
             elem_n = sim.n_g
         else:
-            print(f"There is no such element in {sim} object")
+            raise ValueError(f"Unknown element type '{element}'.")
 
-        # Has this element already added? Disregard repetitive element
-        if elem == np.array([]):
-            elem_add( f, desc )
-            print(f"Successfully added to {sim} a {element} pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
-        else:
-            addQuery = True
-            if elem_n == 1:
-                rows = elem[1:len(desc)]
-                if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
-                    addQuery = False
-                    # print("hi, not added 1")
-            else:
-                for row in elem:
-                    rows = row[1:len(desc)]
-                    if np.all( np.array(desc[:len(desc)-1], dtype=object) == rows ):
-                        addQuery = False
-                        # print("hi, not added 2")
-            if addQuery:
-                elem_add( f, desc )
-            print(f"Successfully added to {sim} a {element} pddx function for {desc[1]} of {desc[2]} (if applicable) from {desc[0]} in {desc[3]} (if applicable)")
+        # Check for duplicates
+        if elem.size == 0 or not _is_duplicate(elem, elem_n, desc):
+            elem_add(func, desc)
 
-def _toDwsim(desc, sim):
-    """Helper function that define a setter function to the dwsim object described in `desc` in `sim`.
+        print(f"Added {element} pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
+
+
+def _is_duplicate(elem: np.ndarray, elem_n: int, desc: list[str]) -> bool:
+    """Check if this descriptor already exists in the element array."""
+    if elem_n == 1:
+        rows = elem[1 : len(desc)]
+        if np.all(np.array(desc[: len(desc) - 1], dtype=object) == rows):
+            return True
+    else:
+        for row in elem:
+            rows = row[1 : len(desc)]
+            if np.all(np.array(desc[: len(desc) - 1], dtype=object) == rows):
+                return True
+    return False
+
+
+def _to_dwsim(desc: list[str], sim: Any) -> Callable | None:
+    """Create a setter function for a DWSIM object property.
 
     Args:
-        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit'].
-        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization.
+        desc: ``[object_name, property, compound/phase, unit]``.
+        sim: Simulation object with a ``flowsheet`` attribute.
 
     Returns:
-        function: setter function to dwsim object described in `desc` in `sim`.
+        Setter lambda, or None if property not recognized.
     """
     from DWSIM.SharedClasses.SystemsOfUnits import Converter
 
-    # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
-        # print(obj.GetDisplayName())
-    except:
-        print(f"there is no {desc[0]} in {sim}")
-        return
+    except Exception:
+        print(f"Object '{desc[0]}' not found in simulation.")
+        return None
 
-    name = obj.GetType().FullName.split('.')
-    # print(name)
+    type_name = obj.GetType().FullName.split(".")
 
-    # Dealing with material stream DoF:
-    if name[-1] == 'MaterialStream':
-        if desc[1] == 'MassFlow':
-            f = lambda x: obj.SetMassFlow( str(x) + f" {desc[3]}" )
-        elif desc[1] == 'Temperature':
-            f = lambda x: obj.SetTemperature( str(x) + f" {desc[3]}" )
-        elif desc[1] == 'Pressure':
-            f = lambda x: obj.SetPressure( str(x) + f" {desc[3]}" )
-        elif desc[1] == 'MolarFlow':
-            f = lambda x: obj.SetMolarFlow( str(x) + f" {desc[3]}" )
-        elif desc[1] == 'CompoundMassFlow':
-            # def f(x):
-            #     return obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-            f = lambda x: obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-        elif desc[1] == 'CompoundMolarFlow':
-            f = lambda x: obj.SetOverallCompoundMolarFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-        elif desc[1] == 'CompoundMolarComposition':
-            f = lambda x: obj.SetOverallCompoundMassFlow( desc[2], Converter.ConvertToSI(desc[3], x) )
-        else:
-            print(f"No property of {desc[0]} named {desc[1]}")
-            f = None
-    # Dealing with energy stram DoF:
-    elif name[-1] == 'EnergyStream':
-        if desc[1] == 'EnergyFlow':
-            f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='EnergyFlow' )
-        else:
-            print(f"No property of {desc[0]} named {desc[1]}")
-            f = None
-    # Dealing with Unit Operations:
-    elif name[-2] == 'UnitOperations':
-        # calcMode = obj.CalcMode
-        if desc[1] == 'OutletPressure':
-            if name[-1]=='Compressor':
-                # print("hey, pay attention")
-                # print(f"x={obj.POut}, type={type(obj.POut)}")
-                # print(f"object = {obj}, type={type(obj)}")
-                # def _setP_comp(x,obj):
-                #     obj.POut = x
-                # f = lambda x: _setP_comp(x, obj)
-                f = lambda x: _set_property(Converter.ConvertToSI(desc[3], x), obj, attr='POut')
-                # f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj.POut)
-                # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.POut )
-            else:
-                f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='OutletPressure')
-                # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletPressure )
-        elif desc[1] == 'OutletTemperature':
-                f = lambda x: _set_property( Converter.ConvertToSI(desc[3], x), obj, attr='OutletTemperature')
-            # f = lambda x: _set_property( str(x) + f" {desc[3]}", obj.OutletTemperature )
-        else:
-            f=None
-    else:
-        f = None
+    # Material Stream
+    if type_name[-1] == "MaterialStream":
+        setters = {
+            "MassFlow": lambda x: obj.SetMassFlow(f"{x} {desc[3]}"),
+            "Temperature": lambda x: obj.SetTemperature(f"{x} {desc[3]}"),
+            "Pressure": lambda x: obj.SetPressure(f"{x} {desc[3]}"),
+            "MolarFlow": lambda x: obj.SetMolarFlow(f"{x} {desc[3]}"),
+            "CompoundMassFlow": lambda x: obj.SetOverallCompoundMassFlow(
+                desc[2], Converter.ConvertToSI(desc[3], x)
+            ),
+            "CompoundMolarFlow": lambda x: obj.SetOverallCompoundMolarFlow(
+                desc[2], Converter.ConvertToSI(desc[3], x)
+            ),
+            "CompoundMolarComposition": lambda x: obj.SetOverallCompoundMassFlow(
+                desc[2], Converter.ConvertToSI(desc[3], x)
+            ),
+        }
+        f = setters.get(desc[1])
+        if f is None:
+            print(f"No setter for MaterialStream property '{desc[1]}'")
+        return f
 
-    return f
-    
-def _fromDwsim(desc, sim):
-    """Helper function that define a getter function to the dwsim object described in `desc` in `sim`.
+    # Energy Stream
+    if type_name[-1] == "EnergyStream":
+        if desc[1] == "EnergyFlow":
+            return lambda x: _set_property(
+                Converter.ConvertToSI(desc[3], x), obj, attr="EnergyFlow"
+            )
+        print(f"No setter for EnergyStream property '{desc[1]}'")
+        return None
+
+    # Unit Operations
+    if type_name[-2] == "UnitOperations":
+        if desc[1] == "OutletPressure":
+            attr = "POut" if type_name[-1] == "Compressor" else "OutletPressure"
+            return lambda x: _set_property(Converter.ConvertToSI(desc[3], x), obj, attr=attr)
+        if desc[1] == "OutletTemperature":
+            return lambda x: _set_property(
+                Converter.ConvertToSI(desc[3], x), obj, attr="OutletTemperature"
+            )
+        print(f"No setter for UnitOperation property '{desc[1]}'")
+        return None
+
+    print(f"Unrecognized object type for '{desc[0]}': {type_name[-1]}")
+    return None
+
+
+def _from_dwsim(desc: list[str], sim: Any) -> Callable | None:
+    """Create a getter function for a DWSIM object property.
 
     Args:
-        desc (list): list of string containing ['dwsim object name as in the simulation', 'object attribute','phase or component name', 'unit'].
-        sim (dwsimopt.SimulationOpimization): object of dwsimopt.SimulationOpimization.
+        desc: ``[object_name, property, compound/phase, unit]``.
+        sim: Simulation object with a ``flowsheet`` attribute.
 
     Returns:
-        function: getter function to dwsim object described in `desc` in `sim`.
+        Getter lambda (no arguments), or None if not recognized.
     """
     from DWSIM.SharedClasses.SystemsOfUnits import Converter
 
-    # is input[0] in sim?
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
-        # print(obj.GetDisplayName())
-    except:
-        print(f"there is no {desc[0]} in {sim}")
-        return
-    # except None:
-    #     obj = sim.flowsheet.GetSpreadsheetObject()
-    #     print(obj)
-    # except:
-    #     print(f"there is no {desc[0]} in {sim}")
-    #     return
+    except Exception:
+        print(f"Object '{desc[0]}' not found in simulation.")
+        return None
 
-    name = obj.GetType().FullName.split('.')
-    # print(name)
+    type_name = obj.GetType().FullName.split(".")
 
-    # PHASE?
-    _phases=0
-    if desc[2]=='Overall':
-        _phases=0
-    elif desc[2]=='Liquid':
-        _phases=1
-    elif desc[2]=='Vapor':
-        _phases=2
+    # Phase index
+    phase_map = {"Overall": 0, "Liquid": 1, "Vapor": 2}
+    _phase = phase_map.get(desc[2], 0)
 
-    # Dealing with material stream DoF:
-    if name[-1] == 'MaterialStream':
-        if desc[1] == 'MassFlow':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.Phases[_phases].Properties.massflow) 
-        elif desc[1] == 'Temperature':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetTemperature())
-        elif desc[1] == 'Pressure':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.GetPressure()) 
-        elif desc[1] == 'MolarFlow':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.Phases[_phases].Properties.molarflow) 
-        elif desc[1] == 'MassFraction':
-            f = lambda: obj.Phases[_phases].Properties.massfraction
-        elif desc[1] == 'MolarFraction':
-            f = lambda: obj.Phases[_phases].Properties.molarfraction
-        elif desc[1] == 'CompoundMassFlow':
-            f = lambda: Converter.ConvertToSI(f"{desc[3]}", obj.GetCompoundMassFlow(desc[2]))
-        else:
-            print(f"No property of {desc[0]} named {desc[1]}")
-            f = None
-    # Dealing with energy stram DoF:
-    elif name[-1] == 'EnergyStream':
-        if desc[1] == 'EnergyFlow':
-            # def f(x):
-            #     return Converter.ConvertFromSI( f"{desc[3]}", obj.EnergyFlow) 
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.EnergyFlow) 
-        else:
-            print(f"No property of {desc[0]} named {desc[1]}")
-            f = None
-    # Dealing with Unit Operations:
-    elif name[-2] == 'UnitOperations':
-        # calcMode = obj.CalcMode
-        if desc[1] == 'OutletPressure':
-            if name[-1]=='Compressor':
-                f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.POut) 
-            else:
-                f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.OutletPressure) 
-        elif desc[1] == 'OutletTemperature':
-            f = lambda: Converter.ConvertFromSI( f"{desc[3]}", obj.OutletTemperature)
-        elif desc[1] == 'OutputVariable':
-            # def f(x):
-            #     return obj.OutputVariables[desc[2]]
-            f = lambda: obj.OutputVariables[desc[2]]
-        elif desc[1] == 'InputVariables':
-            # def f(x):
-            #     return obj.OutputVariables[desc[2]]
-            f = lambda: obj.OutputVariables[desc[2]]
-        else:
-            print("There is no f{desc[1]} or f{desc[2]} in f{desc[0]}")
-            f=None
-    else:
-        print("There is no f{desc[1]} or f{desc[2]} in f{desc[0]}")
-        f = None
+    # Material Stream
+    if type_name[-1] == "MaterialStream":
+        getters = {
+            "MassFlow": lambda: Converter.ConvertFromSI(
+                desc[3], obj.Phases[_phase].Properties.massflow
+            ),
+            "Temperature": lambda: Converter.ConvertFromSI(desc[3], obj.GetTemperature()),
+            "Pressure": lambda: Converter.ConvertFromSI(desc[3], obj.GetPressure()),
+            "MolarFlow": lambda: Converter.ConvertFromSI(
+                desc[3], obj.Phases[_phase].Properties.molarflow
+            ),
+            "MassFraction": lambda: obj.Phases[_phase].Properties.massfraction,
+            "MolarFraction": lambda: obj.Phases[_phase].Properties.molarfraction,
+            "CompoundMassFlow": lambda: Converter.ConvertToSI(
+                desc[3], obj.GetCompoundMassFlow(desc[2])
+            ),
+        }
+        f = getters.get(desc[1])
+        if f is None:
+            print(f"No getter for MaterialStream property '{desc[1]}'")
+        return f
 
-    return f
+    # Energy Stream
+    if type_name[-1] == "EnergyStream":
+        if desc[1] == "EnergyFlow":
+            return lambda: Converter.ConvertFromSI(desc[3], obj.EnergyFlow)
+        print(f"No getter for EnergyStream property '{desc[1]}'")
+        return None
 
-def _set_property(x, obj, attr=''):
-    """Helper setter function. obj <- x
+    # Unit Operations
+    if type_name[-2] == "UnitOperations":
+        if desc[1] == "OutletPressure":
+            attr = "POut" if type_name[-1] == "Compressor" else "OutletPressure"
+            return lambda: Converter.ConvertFromSI(desc[3], getattr(obj, attr))
+        if desc[1] == "OutletTemperature":
+            return lambda: Converter.ConvertFromSI(desc[3], obj.OutletTemperature)
+        if desc[1] in ("OutputVariable", "InputVariables"):
+            return lambda: obj.OutputVariables[desc[2]]
+        print(f"No getter for UnitOperation property '{desc[1]}'")
+        return None
 
-    Args:
-        x (Float): value to be set to obj property
-        obj (Object property): object property to recieve `x` value
-        attr (String): attribute of `obj` that recieves `x`
-    """
+    print(f"Unrecognized object type for '{desc[0]}': {type_name[-1]}")
+    return None
+
+
+def _set_property(x: Any, obj: Any, attr: str = "") -> None:
+    """Helper: set an attribute on a .NET object."""
     setattr(obj, attr, x)
