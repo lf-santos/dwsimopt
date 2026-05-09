@@ -15,7 +15,8 @@ from typing import Any
 
 import numpy as np
 
-from dwsimopt.sim_opt import SimulationOptimization
+from .sim_opt import SimulationOptimization
+from .simulation import DWSIMSimulation
 
 
 class OptimiSim(SimulationOptimization):
@@ -57,7 +58,7 @@ class OptimiSim(SimulationOptimization):
         """Auto-detect DWSIM, add references, and connect."""
 
         if not self.path_to_dwsim:
-            from dwsimopt.simulation import find_dwsim_path
+            from .simulation import find_dwsim_path
 
             self.path_to_dwsim = find_dwsim_path()
             self.path2dwsim = self.path_to_dwsim
@@ -65,19 +66,17 @@ class OptimiSim(SimulationOptimization):
         if not self.path_to_dwsim:
             self.path_to_dwsim = input(
                 r"Please input the path to your DWSIM installation "
-                r"(e.g. C:\Users\UserName\AppData\Local\DWSIM8): "
+                r"(e.g. C:\Users\UserName\AppData\Local\DWSIM): "
             )
-            if self.path_to_dwsim and self.path_to_dwsim[-1] not in "\\/":
+            if self.path_to_dwsim and self.path_to_dwsim[-1] not in r"/":
                 self.path_to_dwsim += "/"
             self.path2dwsim = self.path_to_dwsim
 
         self.add_refs()
 
-        from DWSIM.Automation import Automation2
+        from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
 
         if DWSIMSimulation._automation_manager is None:
-            from dwsimopt.simulation import DWSIMSimulation
-
             DWSIMSimulation._automation_manager = Automation2()
 
         self.interface = DWSIMSimulation._automation_manager
@@ -110,7 +109,7 @@ class OptimiSim(SimulationOptimization):
     # Solvers
     # ─────────────────────────────────────────────────────────────
 
-    def PSO(
+    def PSO(  # noqa: N802
         self,
         x0: np.ndarray,
         xlb: np.ndarray,
@@ -154,8 +153,8 @@ class OptimiSim(SimulationOptimization):
             n_dim=self.n_dof,
             pop=_pop,
             max_iter=_max_ite,
-            lb=xlb,
-            ub=xub,
+            lb=xlb.tolist(),
+            ub=xub.tolist(),
             verbose=verbose,
         )
         result.record_mode = True
@@ -168,7 +167,7 @@ class OptimiSim(SimulationOptimization):
 
         return result
 
-    def GA(
+    def GA(  # noqa: N802
         self,
         x0: np.ndarray,
         xlb: np.ndarray,
@@ -218,10 +217,10 @@ class OptimiSim(SimulationOptimization):
             size_pop=_pop,
             max_iter=_max_ite,
             prob_mut=_prob_mut,
-            lb=xlb,
-            ub=xub,
+            lb=xlb.tolist(),
+            ub=xub.tolist(),
         )
-        result.record_mode = True
+        result.record_mode = True  # pyright: ignore[reportAttributeAccessIssue]
         print("Starting GA optimization")
         result.run()
 
@@ -231,7 +230,7 @@ class OptimiSim(SimulationOptimization):
 
         return result
 
-    def DE(
+    def DE(  # noqa: N802
         self,
         x0: np.ndarray,
         xlb: np.ndarray,
@@ -275,10 +274,10 @@ class OptimiSim(SimulationOptimization):
             n_dim=self.n_dof,
             size_pop=_pop,
             max_iter=_max_ite,
-            lb=xlb,
-            ub=xub,
+            lb=xlb.tolist(),
+            ub=xub.tolist(),
         )
-        result.record_mode = True
+        result.record_mode = True  # pyright: ignore[reportAttributeAccessIssue]
         print("Starting DE optimization")
         result.run()
 
@@ -288,7 +287,7 @@ class OptimiSim(SimulationOptimization):
 
         return result
 
-    def AFSA(
+    def AFSA(  # noqa: N802
         self,
         x0: np.ndarray,
         pen_method: str = "barrier",
@@ -344,7 +343,7 @@ class OptimiSim(SimulationOptimization):
             q=q,
             delta=delta,
         )
-        result.record_mode = True
+        result.record_mode = True  # pyright: ignore[reportAttributeAccessIssue]
         print("Starting AFSA optimization")
         result.run()
 
@@ -361,8 +360,11 @@ class OptimiSim(SimulationOptimization):
         if self.n_f < 1:
             raise ValueError("No objective function defined. Call add_fobj() first.")
 
-    def _print_solution(self, best_x: np.ndarray, solver_name: str) -> None:
+    def _print_solution(self, best_x: np.ndarray | None, solver_name: str) -> None:
         """Print the solution at the optimum."""
+        if best_x is None:
+            print(f"{solver_name} did not find a solution.")
+            return
         print(f"{solver_name} finished with x* = {best_x}")
         self.converge_simulation(best_x)
         if self.n_f >= 1:

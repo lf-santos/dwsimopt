@@ -23,12 +23,13 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Chemistry",
     "Topic :: Scientific/Engineering :: Mathematics",
 ]
-dependencies = ["numpy>=1.21"]
+dependencies = ["numpy>=1.21", "python-dotenv"]
 
 [project.optional-dependencies]
 optimization = ["scikit-opt>=0.6", "scipy>=1.7", "matplotlib>=3.4"]
 dwsim = ["pythonnet>=3.0", "pywin32; sys_platform == 'win32'"]
-all = ["dwsimopt[optimization,dwsim]"]
+notebooks = ["ipykernel"]
+all = ["dwsimopt[optimization,dwsim,notebooks]"]
 dev = [
     "dwsimopt[all]",
     "pytest>=7.0",
@@ -37,7 +38,12 @@ dev = [
     "mypy>=1.0",
     "sphinx>=7.0",
     "sphinx-rtd-theme>=2.0",
+    "tox",
+    "tox-uv",
 ]
+
+[tool.uv]
+default-groups = "all"
 
 [project.urls]
 Homepage = "https://github.com/lf-santos/dwsimopt"
@@ -46,10 +52,10 @@ Repository = "https://github.com/lf-santos/dwsimopt"
 Issues = "https://github.com/lf-santos/dwsimopt/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["dwsimopt"]
+packages = ["src/dwsimopt"]
 
 [tool.ruff]
-target-version = "py39"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]
@@ -61,7 +67,7 @@ testpaths = ["tests"]
 markers = ["requires_dwsim: marks tests that require DWSIM installed"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 ignore_missing_imports = true

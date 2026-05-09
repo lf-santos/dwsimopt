@@ -16,10 +16,10 @@ For optimization (backwards-compatible API):
     >>> from dwsimopt import SimulationOptimization, OptimiSim
 """
 
-from dwsimopt.simulation import DWSIMSimulation
-from dwsimopt.sim_opt import SimulationOptimization
-from dwsimopt.solve_sim_opt import OptimiSim
-from dwsimopt.py2dwsim import create_pddx, assign_pddx
+from .py2dwsim import assign_pddx, create_pddx
+from .sim_opt import SimulationOptimization
+from .simulation import DWSIMSimulation
+from .solve_sim_opt import OptimiSim
 
 __version__ = "1.0.0"
 

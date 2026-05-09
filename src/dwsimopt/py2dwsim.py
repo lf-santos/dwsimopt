@@ -14,17 +14,18 @@ Backwards-compatible with the original ``dwsimopt.py2dwsim`` API.
 
 from __future__ import annotations
 
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any, cast
 
 import numpy as np
 
 
 def create_pddx(
-    desc: list[str],
+    desc: list[str] | list[list[str]],
     sim: Any,
     element: str = "dof",
     assign: bool = True,
-) -> list[Callable] | None:
+) -> list[Callable | None] | None:
     """Create a Python-DWSIM data exchange (pddx) channel.
 
     Generates getter or setter functions for DWSIM simulation objects and optionally
@@ -49,9 +50,9 @@ def create_pddx(
     # Number of inputs
     n_inputs = m[0] if len(m) > 1 else 1
 
-    ff: list[Callable] = []
+    ff: list[Callable | None] = []
     for ite in range(n_inputs):
-        desc_ite = desc[ite] if n_inputs > 1 else desc
+        desc_ite: list[str] = cast(list[str], desc[ite] if n_inputs > 1 else desc)
 
         if element == "dof":
             f = _to_dwsim(desc_ite, sim)
@@ -72,12 +73,12 @@ def create_pddx(
             print(f"Created setter pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
         else:
             print(f"Created getter pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
-        return ff
+        return cast(list[Callable | None], ff)
 
 
 def assign_pddx(
     f: Any,
-    desc: list[str],
+    desc: list[str] | list[list[str]],
     sim: Any,
     element: str = "dof",
 ) -> None:
@@ -87,7 +88,7 @@ def assign_pddx(
 
     Args:
         f: Function or list of functions to assign.
-        desc: Descriptor list.
+        desc: Descriptor list or list of descriptor lists.
         sim: :class:`~dwsimopt.sim_opt.SimulationOptimization` instance.
         element: ``'dof'``, ``'fobj'``, or ``'constraint'``.
     """
@@ -96,6 +97,10 @@ def assign_pddx(
 
     for ite in range(n):
         func = funcs[ite] if n > 1 else funcs[0]
+        desc_ite: list[str] = cast(
+            list[str],
+            desc[ite] if isinstance(desc, list) and n > 1 and isinstance(desc[0], list) else desc,
+        )
 
         if element == "dof":
             elem_add = sim.add_dof
@@ -113,10 +118,12 @@ def assign_pddx(
             raise ValueError(f"Unknown element type '{element}'.")
 
         # Check for duplicates
-        if elem.size == 0 or not _is_duplicate(elem, elem_n, desc):
-            elem_add(func, desc)
+        if elem.size == 0 or not _is_duplicate(elem, elem_n, desc_ite):
+            elem_add(func, desc_ite)
 
-        print(f"Added {element} pddx for {desc[1]} of {desc[2]} from {desc[0]} in {desc[3]}")
+        print(
+            f"Added {element} pddx for {desc_ite[1]} of {desc_ite[2]} from {desc_ite[0]} in {desc_ite[3]}"
+        )
 
 
 def _is_duplicate(elem: np.ndarray, elem_n: int, desc: list[str]) -> bool:
@@ -143,7 +150,9 @@ def _to_dwsim(desc: list[str], sim: Any) -> Callable | None:
     Returns:
         Setter lambda, or None if property not recognized.
     """
-    from DWSIM.SharedClasses.SystemsOfUnits import Converter
+    from DWSIM.SharedClasses.SystemsOfUnits import (  # pyright: ignore[reportMissingImports]
+        Converter,
+    )
 
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
@@ -210,7 +219,9 @@ def _from_dwsim(desc: list[str], sim: Any) -> Callable | None:
     Returns:
         Getter lambda (no arguments), or None if not recognized.
     """
-    from DWSIM.SharedClasses.SystemsOfUnits import Converter
+    from DWSIM.SharedClasses.SystemsOfUnits import (  # pyright: ignore[reportMissingImports]
+        Converter,
+    )
 
     try:
         obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])

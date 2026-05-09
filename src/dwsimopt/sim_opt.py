@@ -13,11 +13,11 @@ Now inherits from :class:`~dwsimopt.simulation.DWSIMSimulation` to reuse connect
 from __future__ import annotations
 
 import time
-from typing import Any
+from typing import Any, cast
 
 import numpy as np
 
-from dwsimopt.simulation import DWSIMSimulation
+from .simulation import DWSIMSimulation
 
 
 class SimulationOptimization(DWSIMSimulation):
@@ -86,6 +86,15 @@ class SimulationOptimization(DWSIMSimulation):
             # New path: use parent class connect()
             super().connect()
 
+    def _make_record(self, first: Any, description: list | None = None) -> np.ndarray:
+        """Create an object array record for DOF, objective, or constraint entries."""
+        desc = description if description is not None else [None, None, None, None]
+        record = np.empty(1 + len(desc), dtype=object)
+        record[0] = first
+        for idx, item in enumerate(desc, start=1):
+            record[idx] = item
+        return record
+
     def add_dof(self, dof_new: Any, description: list | None = None) -> None:
         """Append a new degree of freedom to the optimization problem.
 
@@ -93,11 +102,11 @@ class SimulationOptimization(DWSIMSimulation):
             dof_new: Callable (lambda/function) that sets a DOF value in DWSIM.
             description: Optional ``[object_name, property, compound/phase, unit]``.
         """
-        desc = description if description is not None else [None, None, None, None]
+        row = self._make_record(dof_new, description)
         if self.dof.size == 0:
-            self.dof = np.append(self.dof, np.append(dof_new, desc))
+            self.dof = row
         else:
-            self.dof = np.block([[self.dof], [np.append(dof_new, desc)]])
+            self.dof = np.vstack([self.dof, row])
         self.n_dof += 1
 
     def add_fobj(self, func: Any, description: list | None = None) -> None:
@@ -107,11 +116,11 @@ class SimulationOptimization(DWSIMSimulation):
             func: Callable that returns the objective value after simulation converges.
             description: Optional ``[object_name, property, compound/phase, unit]``.
         """
-        desc = description if description is not None else [None, None, None, None]
+        row = self._make_record(func, description)
         if self.f.size == 0:
-            self.f = np.append(self.f, np.append(func, desc))
+            self.f = row
         else:
-            self.f = np.block([[self.f], [np.append(func, desc)]])
+            self.f = np.vstack([self.f, row])
         self.n_f += 1
 
     def add_constraint(self, g_func: Any, description: list | None = None) -> None:
@@ -121,11 +130,11 @@ class SimulationOptimization(DWSIMSimulation):
             g_func: Callable that returns the constraint value.
             description: Optional ``[object_name, property, compound/phase, unit]``.
         """
-        desc = description if description is not None else [None, None, None, None]
+        row = self._make_record(g_func, description)
         if self.g.size == 0:
-            self.g = np.append(self.g, np.append(g_func, desc))
+            self.g = row
         else:
-            self.g = np.block([[self.g], [np.append(g_func, desc)]])
+            self.g = np.vstack([self.g, row])
         self.n_g += 1
 
     def converge_simulation(self, x: np.ndarray) -> None:
@@ -175,7 +184,7 @@ class SimulationOptimization(DWSIMSimulation):
             time.sleep(0.1)
             res_new = self._collect_results()
             try:
-                variation = np.linalg.norm(res_new - res_old)
+                variation = cast(float, np.linalg.norm(res_new - res_old))
             except (TypeError, ValueError):
                 variation = 1.0
             if variation <= 1e-6:
@@ -197,7 +206,7 @@ class SimulationOptimization(DWSIMSimulation):
             if error:
                 print(f"{error} at x = {x}")
 
-    def calculate_optProblem(self, x: np.ndarray) -> np.ndarray:
+    def calculate_optProblem(self, x: np.ndarray) -> np.ndarray:  # noqa: N802
         """Converge the simulation and return objectives + constraints.
 
         Only re-runs if ``x`` differs from the last evaluated point.
@@ -209,7 +218,7 @@ class SimulationOptimization(DWSIMSimulation):
             Array of ``[f_values..., g_values...]``.
         """
         try:
-            delta_x = np.linalg.norm(self.x_val - np.asarray(x))
+            delta_x = cast(float, np.linalg.norm(self.x_val - np.asarray(x)))
         except (TypeError, ValueError):
             delta_x = 1.0
 
@@ -282,10 +291,10 @@ class SimulationOptimization(DWSIMSimulation):
                 results = np.append(results, np.asarray(self.g[0]()))
         return results
 
-    def _evaluate_functions(self, funcs: np.ndarray, n: int) -> np.ndarray | None:
+    def _evaluate_functions(self, funcs: np.ndarray, n: int) -> np.ndarray:
         """Evaluate a set of objective or constraint functions."""
         if n == 0:
-            return None
+            return np.array([])
         values = np.zeros(n)
         if n > 1:
             for i in range(n):

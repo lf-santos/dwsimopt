@@ -25,11 +25,11 @@ class StreamData:
     """Results extracted from a DWSIM material stream."""
 
     name: str
-    temperature_K: float = 0.0
-    pressure_Pa: float = 0.0
+    temperature_K: float = 0.0  # noqa: N815
+    pressure_Pa: float = 0.0  # noqa: N815
     mass_flow_kg_s: float = 0.0
     molar_flow_mol_s: float = 0.0
-    enthalpy_kJ_kg: float = 0.0
+    enthalpy_kJ_kg: float = 0.0  # noqa: N815
     composition_mass: dict[str, float] = field(default_factory=dict)
     composition_molar: dict[str, float] = field(default_factory=dict)
 
@@ -39,7 +39,7 @@ class EnergyStreamData:
     """Results extracted from a DWSIM energy stream."""
 
     name: str
-    energy_flow_kW: float = 0.0
+    energy_flow_kW: float = 0.0  # noqa: N815
 
 
 def find_dwsim_path() -> str:
@@ -122,7 +122,7 @@ class DWSIMSimulation:
         for dll in dlls:
             dll_path = os.path.join(self.path_to_dwsim, dll)
             if os.path.exists(dll_path):
-                clr.AddReference(dll_path)
+                clr.AddReference(dll_path)  # pyright: ignore[reportAttributeAccessIssue]
             elif self.verbose:
                 print(f"  [skip] {dll} not found at {dll_path}")
 
@@ -139,7 +139,7 @@ class DWSIMSimulation:
         if not self._refs_added:
             self.add_refs()
 
-        from DWSIM.Automation import Automation2
+        from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
 
         if DWSIMSimulation._automation_manager is None:
             DWSIMSimulation._automation_manager = Automation2()
@@ -200,12 +200,12 @@ class DWSIMSimulation:
     # SETTERS — Configure simulation inputs
     # ─────────────────────────────────────────────────────────────
 
-    def set_stream_temperature(self, stream_name: str, T_K: float) -> None:
+    def set_stream_temperature(self, stream_name: str, T_K: float) -> None:  # noqa: N803
         """Set stream temperature in Kelvin."""
         obj = self._get_object(stream_name)
         obj.SetTemperature(str(T_K) + " K")
 
-    def set_stream_pressure(self, stream_name: str, P_Pa: float) -> None:
+    def set_stream_pressure(self, stream_name: str, P_Pa: float) -> None:  # noqa: N803
         """Set stream pressure in Pascal."""
         obj = self._get_object(stream_name)
         obj.SetPressure(str(P_Pa) + " Pa")
@@ -246,14 +246,18 @@ class DWSIMSimulation:
 
     def set_compound_mass_flow(self, stream_name: str, compound: str, flow_kg_s: float) -> None:
         """Set individual compound mass flow in a stream."""
-        from DWSIM.SharedClasses.SystemsOfUnits import Converter
+        from DWSIM.SharedClasses.SystemsOfUnits import (  # pyright: ignore[reportMissingImports]
+            Converter,
+        )
 
         obj = self._get_object(stream_name)
         obj.SetOverallCompoundMassFlow(compound, Converter.ConvertToSI("kg/s", flow_kg_s))
 
     def set_compound_molar_flow(self, stream_name: str, compound: str, flow_mol_s: float) -> None:
         """Set individual compound molar flow in a stream."""
-        from DWSIM.SharedClasses.SystemsOfUnits import Converter
+        from DWSIM.SharedClasses.SystemsOfUnits import (  # pyright: ignore[reportMissingImports]
+            Converter,
+        )
 
         obj = self._get_object(stream_name)
         obj.SetOverallCompoundMolarFlow(compound, Converter.ConvertToSI("mol/s", flow_mol_s))
