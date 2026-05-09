@@ -155,12 +155,13 @@ def _to_dwsim(desc: list[str], sim: Any) -> Callable | None:
     )
 
     try:
-        obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
+        obj = sim.flowsheet.GetObject(desc[0]).GetAsObject()
     except Exception:
         print(f"Object '{desc[0]}' not found in simulation.")
         return None
 
     type_name = obj.GetType().FullName.split(".")
+    setters: dict[str, Callable[[Any], None]] = {}
 
     # Material Stream
     if type_name[-1] == "MaterialStream":
@@ -175,9 +176,9 @@ def _to_dwsim(desc: list[str], sim: Any) -> Callable | None:
             "CompoundMolarFlow": lambda x: obj.SetOverallCompoundMolarFlow(
                 desc[2], Converter.ConvertToSI(desc[3], x)
             ),
-            "CompoundMolarComposition": lambda x: obj.SetOverallCompoundMassFlow(
-                desc[2], Converter.ConvertToSI(desc[3], x)
-            ),
+            # "CompoundMolarComposition": lambda x: obj.SetOverallCompoundMassFlow(
+            #     desc[2], Converter.ConvertToSI(desc[3], x)
+            # ),
         }
         f = setters.get(desc[1])
         if f is None:
@@ -186,26 +187,35 @@ def _to_dwsim(desc: list[str], sim: Any) -> Callable | None:
 
     # Energy Stream
     if type_name[-1] == "EnergyStream":
-        if desc[1] == "EnergyFlow":
-            return lambda x: _set_property(
+        setters = {
+            "EnergyFlow": lambda x: _set_property(
                 Converter.ConvertToSI(desc[3], x), obj, attr="EnergyFlow"
-            )
-        print(f"No setter for EnergyStream property '{desc[1]}'")
-        return None
+            ),
+        }
+        f = setters.get(desc[1])
+        if f is None:
+            print(f"No setter for EnergyStream property '{desc[1]}'")
+        return f
 
     # Unit Operations
     if type_name[-2] == "UnitOperations":
-        if desc[1] == "OutletPressure":
-            attr = "POut" if type_name[-1] == "Compressor" else "OutletPressure"
-            return lambda x: _set_property(Converter.ConvertToSI(desc[3], x), obj, attr=attr)
-        if desc[1] == "OutletTemperature":
-            return lambda x: _set_property(
+        setters = {
+            "OutletPressure": lambda x: _set_property(
+                Converter.ConvertToSI(desc[3], x),
+                obj,
+                attr="POut" if type_name[-1] == "Compressor" else "OutletPressure",
+            ),
+            "OutletTemperature": lambda x: _set_property(
                 Converter.ConvertToSI(desc[3], x), obj, attr="OutletTemperature"
-            )
-        print(f"No setter for UnitOperation property '{desc[1]}'")
-        return None
+            ),
+        }
+        f = setters.get(desc[1])
+        if f is None:
+            print(f"No setter for UnitOperation property '{desc[1]}'")
+        return f
 
     print(f"Unrecognized object type for '{desc[0]}': {type_name[-1]}")
+    print(f"Available properties: {list(setters.keys())}")
     return None
 
 
@@ -224,12 +234,13 @@ def _from_dwsim(desc: list[str], sim: Any) -> Callable | None:
     )
 
     try:
-        obj = sim.flowsheet.GetFlowsheetSimulationObject(desc[0])
+        obj = sim.flowsheet.GetObject(desc[0]).GetAsObject()
     except Exception:
         print(f"Object '{desc[0]}' not found in simulation.")
         return None
 
     type_name = obj.GetType().FullName.split(".")
+    getters: dict[str, Callable[[], Any]] = {}
 
     # Phase index
     phase_map = {"Overall": 0, "Liquid": 1, "Vapor": 2}
@@ -259,24 +270,35 @@ def _from_dwsim(desc: list[str], sim: Any) -> Callable | None:
 
     # Energy Stream
     if type_name[-1] == "EnergyStream":
-        if desc[1] == "EnergyFlow":
-            return lambda: Converter.ConvertFromSI(desc[3], obj.EnergyFlow)
-        print(f"No getter for EnergyStream property '{desc[1]}'")
-        return None
+        getters = {
+            "EnergyFlow": lambda: Converter.ConvertFromSI(desc[3], obj.EnergyFlow),
+        }
+        f = getters.get(desc[1])
+        if f is None:
+            print(f"No getter for EnergyStream property '{desc[1]}'")
+        return f
 
     # Unit Operations
     if type_name[-2] == "UnitOperations":
-        if desc[1] == "OutletPressure":
-            attr = "POut" if type_name[-1] == "Compressor" else "OutletPressure"
-            return lambda: Converter.ConvertFromSI(desc[3], getattr(obj, attr))
-        if desc[1] == "OutletTemperature":
-            return lambda: Converter.ConvertFromSI(desc[3], obj.OutletTemperature)
-        if desc[1] in ("OutputVariable", "InputVariables"):
-            return lambda: obj.OutputVariables[desc[2]]
-        print(f"No getter for UnitOperation property '{desc[1]}'")
-        return None
+        getters = {
+            "InputPressure": lambda: Converter.ConvertFromSI(
+                desc[3], obj.PIn if type_name[-1] == "Compressor" else obj.InletPressure
+            ),
+            "InputTemperature": lambda: Converter.ConvertFromSI(desc[3], obj.InletTemperature),
+            "OutletPressure": lambda: Converter.ConvertFromSI(
+                desc[3], obj.POut if type_name[-1] == "Compressor" else obj.OutletPressure
+            ),
+            "OutletTemperature": lambda: Converter.ConvertFromSI(desc[3], obj.OutletTemperature),
+            "OutputVariable": lambda: obj.OutputVariables[desc[2]],
+            "InputVariables": lambda: obj.OutputVariables[desc[2]],
+        }
+        f = getters.get(desc[1])
+        if f is None:
+            print(f"No getter for UnitOperation property '{desc[1]}'")
+        return f
 
     print(f"Unrecognized object type for '{desc[0]}': {type_name[-1]}")
+    print(f"Available properties: {list(getters.keys())}")
     return None
 
 

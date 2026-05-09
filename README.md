@@ -95,8 +95,8 @@ from dwsimopt import SimulationOptimization, create_pddx
 sim = SimulationOptimization(path2sim="experiment.dwxmz", path2dwsim="/path/to/DWSIM/")
 sim.add_refs()
 
-from DWSIM.Automation import Automation2
-interf = Automation2()
+from DWSIM.Automation import Automation3
+interf = Automation3()
 sim.connect(interf)
 
 # Declarative DOF setup

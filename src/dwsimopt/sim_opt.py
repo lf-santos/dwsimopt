@@ -78,7 +78,7 @@ class SimulationOptimization(DWSIMSimulation):
             # Legacy path: user passes an automation manager
             if not self._refs_added:
                 self.add_refs()
-            self.flowsheet = interf.LoadFlowsheet(self.path_to_sim)
+            self.flowsheet = interf.LoadFlowsheet2(self.path_to_sim)
             self.interface = interf
             if self.flowsheet is not None and self.verbose:
                 print("Simulation was loaded successfully")
@@ -237,7 +237,7 @@ class SimulationOptimization(DWSIMSimulation):
 
     def save_flowsheet(self) -> None:
         """Save the flowsheet to ``self.savepath``."""
-        self.interface.SaveFlowsheet(self.flowsheet, self.savepath, True)
+        self.interface.SaveFlowsheet2(self.flowsheet, self.savepath)
 
     # ─────────────────────────────────────────────────────────────
     # Penalization methods

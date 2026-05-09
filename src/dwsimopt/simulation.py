@@ -139,13 +139,13 @@ class DWSIMSimulation:
         if not self._refs_added:
             self.add_refs()
 
-        from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
+        from DWSIM.Automation import Automation3  # pyright: ignore[reportMissingImports]
 
         if DWSIMSimulation._automation_manager is None:
-            DWSIMSimulation._automation_manager = Automation2()
+            DWSIMSimulation._automation_manager = Automation3()
 
         self.interface = DWSIMSimulation._automation_manager
-        self.flowsheet = self.interface.LoadFlowsheet(self.path_to_sim)
+        self.flowsheet = self.interface.LoadFlowsheet2(self.path_to_sim)
 
         if self.flowsheet is None:
             raise RuntimeError(f"Failed to load simulation: {self.path_to_sim}")
@@ -192,7 +192,7 @@ class DWSIMSimulation:
             path: Target file path. Defaults to the original path_to_sim.
         """
         save_path = path or self.path_to_sim
-        self.interface.SaveFlowsheet(self.flowsheet, save_path, True)
+        self.interface.SaveFlowsheet2(self.flowsheet, save_path)
         if self.verbose:
             print(f"  Saved: {save_path}")
 

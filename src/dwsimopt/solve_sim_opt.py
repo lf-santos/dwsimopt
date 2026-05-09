@@ -74,10 +74,10 @@ class OptimiSim(SimulationOptimization):
 
         self.add_refs()
 
-        from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
+        from DWSIM.Automation import Automation3  # pyright: ignore[reportMissingImports]
 
         if DWSIMSimulation._automation_manager is None:
-            DWSIMSimulation._automation_manager = Automation2()
+            DWSIMSimulation._automation_manager = Automation3()
 
         self.interface = DWSIMSimulation._automation_manager
         self.connect(self.interface)

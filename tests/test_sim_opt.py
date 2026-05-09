@@ -205,21 +205,21 @@ class TestPenalization:
 class TestLegacyConnect:
     def test_connect_with_interface(self, sim_opt_with_mocks, mock_interface):
         sim_opt_with_mocks.flowsheet = None
-        mock_interface.LoadFlowsheet.return_value = MagicMock()
+        mock_interface.LoadFlowsheet2.return_value = MagicMock()
         sim_opt_with_mocks.connect(mock_interface)
         assert sim_opt_with_mocks.flowsheet is not None
         assert sim_opt_with_mocks.interface is mock_interface
 
     def test_connect_loads_correct_path(self, sim_opt_with_mocks, mock_interface):
         sim_opt_with_mocks.flowsheet = None
-        mock_interface.LoadFlowsheet.return_value = MagicMock()
+        mock_interface.LoadFlowsheet2.return_value = MagicMock()
         sim_opt_with_mocks.connect(mock_interface)
-        mock_interface.LoadFlowsheet.assert_called_with(sim_opt_with_mocks.path_to_sim)
+        mock_interface.LoadFlowsheet2.assert_called_with(sim_opt_with_mocks.path_to_sim)
 
 
 class TestSaveFlowsheet:
     def test_calls_save(self, sim_opt_with_mocks):
         sim_opt_with_mocks.save_flowsheet()
-        sim_opt_with_mocks.interface.SaveFlowsheet.assert_called_once_with(
+        sim_opt_with_mocks.interface.SaveFlowsheet2.assert_called_once_with(
             sim_opt_with_mocks.flowsheet, sim_opt_with_mocks.savepath, True
         )

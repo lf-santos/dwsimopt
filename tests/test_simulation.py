@@ -110,14 +110,14 @@ class TestDWSIMSimulationWithMocks:
 
     def test_save_default(self, sim_with_mock):
         sim_with_mock.save()
-        sim_with_mock.interface.SaveFlowsheet.assert_called_once_with(
+        sim_with_mock.interface.SaveFlowsheet2.assert_called_once_with(
             sim_with_mock.flowsheet, sim_with_mock.path_to_sim, True
         )
 
     def test_save_custom(self, sim_with_mock, tmp_path):
         p = str(tmp_path / "out.dwxmz")
         sim_with_mock.save(path=p)
-        sim_with_mock.interface.SaveFlowsheet.assert_called_once_with(
+        sim_with_mock.interface.SaveFlowsheet2.assert_called_once_with(
             sim_with_mock.flowsheet, p, True
         )
 
@@ -170,7 +170,7 @@ class TestDWSIMSimulationIntegration:
         # Use the shared interface instead of creating a new one
         s._refs_added = True
         s.interface = dwsim_interf
-        s.flowsheet = dwsim_interf.LoadFlowsheet(s.path_to_sim)
+        s.flowsheet = dwsim_interf.LoadFlowsheet2(s.path_to_sim)
         return s
 
     def test_connect_loads_flowsheet(self, sim):

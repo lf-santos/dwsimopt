@@ -3,7 +3,7 @@ Pytest configuration and shared fixtures for dwsimopt tests.
 
 All path handling uses pathlib.Path.
 
-IMPORTANT: DWSIM's Automation2 can only be instantiated once per process.
+IMPORTANT: DWSIM's Automation3 can only be instantiated once per process.
 The `dwsim_interf` fixture (session-scoped) provides the single shared instance.
 """
 
@@ -92,14 +92,14 @@ def test_sim_path() -> Path:
     return TESTS_DIR / "test_sim.dwxmz"
 
 
-# ─── DWSIM session fixture (single Automation2 instance) ─────────────────────
+# ─── DWSIM session fixture (single Automation3 instance) ─────────────────────
 
 
 @pytest.fixture(scope="session")
 def dwsim_interf(dwsim_path):
-    """Session-scoped DWSIM Automation2 instance.
+    """Session-scoped DWSIM Automation3 instance.
 
-    Automation2 can only be instantiated ONCE per process. This fixture
+    Automation3 can only be instantiated ONCE per process. This fixture
     ensures all tests share the same instance.
     """
     from dwsimopt.simulation import DWSIMSimulation
@@ -111,9 +111,9 @@ def dwsim_interf(dwsim_path):
     sim._refs_added = False
     sim.add_refs()
 
-    from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
+    from DWSIM.Automation import Automation3  # pyright: ignore[reportMissingImports]
 
-    interf = Automation2()
+    interf = Automation3()
     return interf
 
 
@@ -122,11 +122,11 @@ def dwsim_interf(dwsim_path):
 
 @pytest.fixture
 def mock_interface() -> MagicMock:
-    """A mocked DWSIM Automation2 interface."""
+    """A mocked DWSIM Automation3 interface."""
     interf = MagicMock()
     interf.CalculateFlowsheet2.return_value = ""
-    interf.LoadFlowsheet.return_value = MagicMock()
-    interf.SaveFlowsheet.return_value = None
+    interf.LoadFlowsheet2.return_value = MagicMock()
+    interf.SaveFlowsheet2.return_value = None
     return interf
 
 

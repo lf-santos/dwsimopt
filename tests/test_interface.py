@@ -2,7 +2,7 @@
 Tests for the legacy DWSIM-Python interface workflow.
 
 All tests use the shared `dwsim_interf` fixture (session-scoped)
-since Automation2 can only be instantiated once per process.
+since Automation3 can only be instantiated once per process.
 """
 
 from __future__ import annotations
@@ -41,12 +41,12 @@ class TestLegacyInterface:
 
     def test_add_refs_loads_modules(self, dwsim_interf):
         """After refs are loaded (via dwsim_interf fixture), DWSIM modules are in sys.modules."""
-        # dwsim_interf fixture already called add_refs + Automation2()
+        # dwsim_interf fixture already called add_refs + Automation3()
         assert "DWSIM" in str(sys.modules) or True
         # The real check: we can import without error
-        from DWSIM.Automation import Automation2  # pyright: ignore[reportMissingImports]
+        from DWSIM.Automation import Automation3  # pyright: ignore[reportMissingImports]
 
-        assert Automation2 is not None
+        assert Automation3 is not None
 
     def test_connect_with_valid_simulation(self, dwsim_path, dwsim_interf):
         """connect(interf) should load the flowsheet successfully."""
